@@ -16,17 +16,31 @@ export default function App() {
   const [showRules, setShowRules] = useState(false);
 
   useEffect(() => {
+    console.log("=== DEBUG RACCOURCIS ===");
+    console.log("Phase actuelle:", g.phase);
+    console.log("Fonctions disponibles:", { hit: !!g.hit, stand: !!g.stand, doubleDown: !!g.doubleDown, split: !!g.split, surrender: !!g.surrender, insurance: !!g.insurance, deal: !!g.deal });
+    
     const onKey = (e: KeyboardEvent) => {
+      console.log("Touche pressée:", e.key, "Code:", e.code, "Phase:", g.phase);
+      
       if (g.phase === "player") {
-        if (e.key.toLowerCase() === "h") g.hit();
-        if (e.key.toLowerCase() === "s") g.stand();
-        if (e.key.toLowerCase() === "d") g.doubleDown();
-        if (e.key.toLowerCase() === "p") g.split();
-        if (e.key.toLowerCase() === "r") g.surrender();
-        if (e.key.toLowerCase() === "i") g.insurance();
+        console.log("Phase PLAYER - Traitement des raccourcis");
+        if (e.key.toLowerCase() === "h") { console.log("→ HIT"); g.hit(); }
+        if (e.key.toLowerCase() === "s") { console.log("→ STAND"); g.stand(); }
+        if (e.key.toLowerCase() === "d") { console.log("→ DOUBLE"); g.doubleDown(); }
+        if (e.key.toLowerCase() === "p") { console.log("→ SPLIT"); g.split(); }
+        if (e.key.toLowerCase() === "r") { console.log("→ SURRENDER"); g.surrender(); }
+        if (e.key.toLowerCase() === "i") { console.log("→ INSURANCE"); g.insurance(); }
+      } else {
+        console.log("Phase non-PLAYER:", g.phase);
       }
-      if (e.code === "Space") g.deal();
+      
+      if (e.code === "Space") { 
+        console.log("→ DEAL (Espace)"); 
+        g.deal(); 
+      }
     };
+    
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [g.phase, g]);
