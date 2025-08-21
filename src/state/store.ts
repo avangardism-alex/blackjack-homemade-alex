@@ -16,6 +16,7 @@ type State = {
   message?: string;
   showWinAnimation: boolean;
   showLoseAnimation: boolean;
+  showTieAnimation: boolean;
   cardCounter: CardCounter;
 };
 
@@ -52,6 +53,7 @@ export const useGame = create<State & Actions>((set, get) => ({
   message: undefined,
   showWinAnimation: false,
   showLoseAnimation: false,
+  showTieAnimation: false,
   cardCounter: new CardCounter(),
 
   addBank: (amt)=> set((st)=>{
