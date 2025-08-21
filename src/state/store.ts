@@ -13,6 +13,7 @@ type State = {
   dealer: Card[];
   betAmount: number;
   lastBetAmount: number; // Sauvegarder la dernière mise
+  sideBetAmount: number; // Mise pour les side bets
   message?: string;
   showWinAnimation: boolean;
   showLoseAnimation: boolean;
@@ -24,8 +25,10 @@ type Actions = {
   addBank: (amt:number)=>void;
   resetBank: ()=>void;
   addChip: (amt: number) => void;
+  addSideBet: (amt: number) => void; // Ajouter aux side bets
   tapis: () => void;
   clearBet: () => void;
+  clearSideBet: () => void; // Effacer les side bets
   rejouerMise: () => void; // Rejouer la dernière mise
   deal: () => void;
   hit: () => void;
@@ -50,6 +53,7 @@ export const useGame = create<State & Actions>((set, get) => ({
   dealer: [],
   betAmount: 0,
   lastBetAmount: 0, // Initialiser la dernière mise
+  sideBetAmount: 0, // Initialiser les side bets
   message: undefined,
   showWinAnimation: false,
   showLoseAnimation: false,
@@ -99,6 +103,17 @@ export const useGame = create<State & Actions>((set, get) => ({
   },
 
   clearBet: () => set({ betAmount: 0 }),
+  clearSideBet: () => set({ sideBetAmount: 0 }),
+  
+  // Ajouter aux side bets
+  addSideBet: (amt) => set((st) => {
+    SFX.chip();
+    const next = Math.min(Math.max(st.sideBetAmount + amt, TABLE_MIN), TABLE_MAX);
+    if (next > st.bank) return st;
+    const bank = st.bank - amt;
+    localStorage.setItem(LS_KEY, String(bank));
+    return { sideBetAmount: next, bank };
+  }),
   
   // Rejouer la dernière mise
   rejouerMise: () => {
@@ -186,8 +201,55 @@ export const useGame = create<State & Actions>((set, get) => ({
                 }
               });
               
-              // CORRECTION : Rembourser la mise + ajouter le gain/perte
-              console.log("Delta final:", delta, "€"); const bank = Math.max(0, finalSt.bank + delta + finalSt.betAmount);
+              // Calculer les gains des side bets
+              let sideBetGains = 0;
+              if (finalSt.sideBetAmount > 0) {
+                const playerCards = finalSt.hands[0]?.cards || [];
+                if (playerCards.length >= 2) {
+                  const card1 = playerCards[0];
+                  const card2 = playerCards[1];
+                  
+                  // Perfect Pairs
+                  if (card1.r === card2.r) {
+                    if (card1.s === card2.s) {
+                      // Paire parfaite (même carte) - 25:1
+                      sideBetGains += finalSt.sideBetAmount * 25;
+                      console.log("🎯 Paire parfaite ! +", finalSt.sideBetAmount * 25, "€");
+                    } else if (card1.s === "H" || card1.s === "D" || card2.s === "H" || card2.s === "D") {
+                      // Paire de couleur (rouge) - 10:1
+                      sideBetGains += finalSt.sideBetAmount * 10;
+                      console.log("🎨 Paire de couleur ! +", finalSt.sideBetAmount * 10, "€");
+                    } else {
+                      // Paire mixte - 5:1
+                      sideBetGains += finalSt.sideBetAmount * 5;
+                      console.log("🃏 Paire mixte ! +", finalSt.sideBetAmount * 5, "€");
+                    }
+                  }
+                  
+                  // Pair Plus (si on a 3 cartes)
+                  if (playerCards.length >= 3) {
+                    const card3 = playerCards[2];
+                    const ranks = [card1.r, card2.r, card3.r];
+                    const suits = [card1.s, card2.s, card3.s];
+                    
+                    // Vérifier les combinaisons
+                    if (ranks[0] === ranks[1] && ranks[1] === ranks[2]) {
+                      // Brelan - 3:1
+                      sideBetGains += finalSt.sideBetAmount * 3;
+                      console.log("🎲 Brelan ! +", finalSt.sideBetAmount * 3, "€");
+                    } else if (ranks[0] === ranks[1] || ranks[1] === ranks[2] || ranks[0] === ranks[2]) {
+                      // Paire - 1:1
+                      sideBetGains += finalSt.sideBetAmount * 1;
+                      console.log("🃏 Paire ! +", finalSt.sideBetAmount * 1, "€");
+                    }
+                  }
+                }
+              }
+              
+              // CORRECTION : Rembourser la mise + ajouter le gain/perte + side bets
+              const totalGains = delta + sideBetGains;
+              console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
+              const bank = Math.max(0, finalSt.bank + totalGains + finalSt.betAmount);
               localStorage.setItem(LS_KEY, String(bank));
               if (delta>0) { 
                 SFX.win(); 
@@ -275,8 +337,55 @@ export const useGame = create<State & Actions>((set, get) => ({
                 }
               });
               
-              // CORRECTION : Rembourser la mise + ajouter le gain/perte
-              console.log("Delta final:", delta, "€"); const bank = Math.max(0, finalSt.bank + delta + finalSt.betAmount);
+              // Calculer les gains des side bets
+              let sideBetGains = 0;
+              if (finalSt.sideBetAmount > 0) {
+                const playerCards = finalSt.hands[0]?.cards || [];
+                if (playerCards.length >= 2) {
+                  const card1 = playerCards[0];
+                  const card2 = playerCards[1];
+                  
+                  // Perfect Pairs
+                  if (card1.r === card2.r) {
+                    if (card1.s === card2.s) {
+                      // Paire parfaite (même carte) - 25:1
+                      sideBetGains += finalSt.sideBetAmount * 25;
+                      console.log("🎯 Paire parfaite ! +", finalSt.sideBetAmount * 25, "€");
+                    } else if (card1.s === "H" || card1.s === "D" || card2.s === "H" || card2.s === "D") {
+                      // Paire de couleur (rouge) - 10:1
+                      sideBetGains += finalSt.sideBetAmount * 10;
+                      console.log("🎨 Paire de couleur ! +", finalSt.sideBetAmount * 10, "€");
+                    } else {
+                      // Paire mixte - 5:1
+                      sideBetGains += finalSt.sideBetAmount * 5;
+                      console.log("🃏 Paire mixte ! +", finalSt.sideBetAmount * 5, "€");
+                    }
+                  }
+                  
+                  // Pair Plus (si on a 3 cartes)
+                  if (playerCards.length >= 3) {
+                    const card3 = playerCards[2];
+                    const ranks = [card1.r, card2.r, card3.r];
+                    const suits = [card1.s, card2.s, card3.s];
+                    
+                    // Vérifier les combinaisons
+                    if (ranks[0] === ranks[1] && ranks[1] === ranks[2]) {
+                      // Brelan - 3:1
+                      sideBetGains += finalSt.sideBetAmount * 3;
+                      console.log("🎲 Brelan ! +", finalSt.sideBetAmount * 3, "€");
+                    } else if (ranks[0] === ranks[1] || ranks[1] === ranks[2] || ranks[0] === ranks[2]) {
+                      // Paire - 1:1
+                      sideBetGains += finalSt.sideBetAmount * 1;
+                      console.log("🃏 Paire ! +", finalSt.sideBetAmount * 1, "€");
+                    }
+                  }
+                }
+              }
+              
+              // CORRECTION : Rembourser la mise + ajouter le gain/perte + side bets
+              const totalGains = delta + sideBetGains;
+              console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
+              const bank = Math.max(0, finalSt.bank + totalGains + finalSt.betAmount);
               localStorage.setItem(LS_KEY, String(bank));
               if (delta>0) { 
                 SFX.win(); 

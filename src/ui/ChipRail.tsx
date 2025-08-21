@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 const CHIPS = [1,5,10,25,100,500];
 
-export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmount }: { onAdd: (n: number) => void; bank: number; onTapis: () => void; onRejouer: () => void; lastBetAmount: number }) {
+export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmount, onAddSideBet, sideBetAmount, onClearSideBet }: { 
+  onAdd: (n: number) => void; 
+  bank: number; 
+  onTapis: () => void; 
+  onRejouer: () => void; 
+  lastBetAmount: number;
+  onAddSideBet: (n: number) => void;
+  sideBetAmount: number;
+  onClearSideBet: () => void;
+}) {
   const [showTapisConfirm, setShowTapisConfirm] = useState(false);
 
   const handleTapisClick = () => {
@@ -36,6 +45,43 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
           🔄 Rejouer {lastBetAmount.toLocaleString('fr-FR')}€
         </button>
       )}
+      
+      {/* Section Side Bets */}
+      <div className="border-t border-emerald-600/50 pt-4 mt-4 w-full">
+        <div className="text-center text-emerald-300 font-bold mb-3">🎰 SIDE BETS</div>
+        
+        {/* Affichage de la mise side bet */}
+        {sideBetAmount > 0 && (
+          <div className="text-center mb-3">
+            <div className="text-emerald-400 font-bold">Mise Side Bet: {sideBetAmount.toLocaleString('fr-FR')}€</div>
+            <button
+              onClick={onClearSideBet}
+              className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-sm font-bold"
+            >
+              ❌ Effacer
+            </button>
+          </div>
+        )}
+        
+        {/* Jetons pour side bets */}
+        <div className="flex gap-2 items-center justify-center mb-3">
+          {CHIPS.map(v => (
+            <button 
+              key={v} 
+              onClick={() => onAddSideBet(v)} 
+              className="rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-purple-100 text-purple-900 font-bold chip-glow border-2 border-purple-300 hover:scale-110 transition-all duration-200 text-xs sm:text-sm"
+            >
+              {v}€
+            </button>
+          ))}
+        </div>
+        
+        {/* Info des gains */}
+        <div className="text-xs text-emerald-300/80 text-center">
+          <div>🎯 Perfect Pairs: 5:1 / 10:1 / 25:1</div>
+          <div>🎲 Pair Plus: 1:1 / 3:1</div>
+        </div>
+      </div>
       
       {/* Bouton TAPIS avec double confirmation */}
       {bank > 0 && (

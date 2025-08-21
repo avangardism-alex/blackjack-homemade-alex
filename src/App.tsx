@@ -99,7 +99,16 @@ export default function App() {
         {g.phase === "betting" && (<>
           <div className="mt-6 text-center text-2xl">💰 MISE : {g.betAmount.toLocaleString('fr-FR')} €</div>
 
-          <ChipRail onAdd={(n) => g.addChip(n)} onTapis={g.tapis} bank={g.bank} onRejouer={g.rejouerMise} lastBetAmount={g.lastBetAmount} />
+          <ChipRail 
+            onAdd={(n) => g.addChip(n)} 
+            onTapis={g.tapis} 
+            bank={g.bank} 
+            onRejouer={g.rejouerMise} 
+            lastBetAmount={g.lastBetAmount}
+            onAddSideBet={(n) => g.addSideBet(n)}
+            sideBetAmount={g.sideBetAmount}
+            onClearSideBet={g.clearSideBet}
+          />
           
           {/* Message d'aide pour le bouton IA */}
           <div className="mt-4 text-center text-sm text-blue-300 opacity-80">
