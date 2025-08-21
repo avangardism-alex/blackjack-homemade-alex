@@ -41,12 +41,12 @@ export default function Actions({ phase, on, currentHand, dealerUpCard, bank }: 
           )}
           
           {dealerUpCard?.r === "A" && !currentHand.insured && (
-            <button 
-              onClick={on.insurance} 
-              className="px-4 py-3 rounded bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold button-3d hover:scale-105 transition-all duration-200 shadow-lg border-2 border-yellow-400"
-            >
-              🛡️ ASSURANCE (S) - Coût: {Math.floor(currentHand.bet / 2)}€
-            </button>
+                    <button
+          onClick={on.insurance}
+          className="px-2 py-2 sm:px-4 sm:py-3 rounded bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold button-3d hover:scale-105 transition-all duration-200 shadow-lg border-2 border-yellow-400 text-sm sm:text-base"
+        >
+          🛡️ ASSURANCE (S) - Coût: {Math.floor(currentHand.bet / 2)}€
+        </button>
           )}
           
           {dealerUpCard?.r === "A" && currentHand.insured && (

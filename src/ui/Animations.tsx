@@ -13,7 +13,7 @@ export default function Animations({ showWin, showLose, showTie }: AnimationsPro
     <>
       {showWin && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="text-8xl font-bold text-yellow-400 animate-bounce">
+          <div className="text-4xl sm:text-6xl md:text-8xl font-bold text-yellow-400 animate-bounce px-4 text-center">
             🎉 GAGNÉ ! 🎉
           </div>
         </div>
@@ -21,7 +21,7 @@ export default function Animations({ showWin, showLose, showTie }: AnimationsPro
       
       {showLose && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="text-8xl font-bold text-red-400 animate-pulse">
+          <div className="text-4xl sm:text-6xl md:text-8xl font-bold text-red-400 animate-pulse px-4 text-center">
             💔 PERDU 💔
           </div>
         </div>
@@ -29,7 +29,7 @@ export default function Animations({ showWin, showLose, showTie }: AnimationsPro
       
       {showTie && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="text-8xl font-bold text-blue-400 animate-ping">
+          <div className="text-4xl sm:text-6xl md:text-8xl font-bold text-blue-400 animate-ping px-4 text-center">
             🤝 ÉGALITÉ ! 🤝
           </div>
         </div>

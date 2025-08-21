@@ -21,7 +21,7 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
       {/* Jetons normaux */}
       <div className="flex gap-3 items-center justify-center">
         {CHIPS.map(v=> (
-          <button key={v} onClick={()=>onAdd(v)} className="rounded-full w-12 h-12 bg-slate-100 text-slate-900 font-bold chip-glow border-4 border-slate-300 hover:scale-110 transition-all duration-200">
+          <button key={v} onClick={()=>onAdd(v)} className="rounded-full w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 text-slate-900 font-bold chip-glow border-4 border-slate-300 hover:scale-110 transition-all duration-200">
             {v}€
           </button>
         ))}
