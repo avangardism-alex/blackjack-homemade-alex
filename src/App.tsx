@@ -152,7 +152,7 @@ export default function App() {
 
       <Rules open={showRules} onClose={()=>setShowRules(false)} />
       
-      <Animations showWin={g.showWinAnimation} showLose={g.showLoseAnimation} />
+      <Animations showWin={g.showWinAnimation} showTie={g.showTieAnimation} />
       <Help />
       
     </div>

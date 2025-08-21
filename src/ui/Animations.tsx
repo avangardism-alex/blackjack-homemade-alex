@@ -2,12 +2,11 @@ import React from "react";
 
 interface AnimationsProps {
   showWin: boolean;
-  showLose: boolean;
   showTie: boolean;
 }
 
-export default function Animations({ showWin, showLose, showTie }: AnimationsProps) {
-  if (!showWin && !showLose && !showTie) return null;
+export default function Animations({ showWin, showTie }: AnimationsProps) {
+  if (!showWin && !showTie) return null;
 
   return (
     <>
@@ -19,13 +18,7 @@ export default function Animations({ showWin, showLose, showTie }: AnimationsPro
         </div>
       )}
       
-      {showLose && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="text-4xl sm:text-6xl md:text-8xl font-bold text-red-400 animate-pulse px-4 text-center">
-            💔 PERDU 💔
-          </div>
-        </div>
-      )}
+
       
       {showTie && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">

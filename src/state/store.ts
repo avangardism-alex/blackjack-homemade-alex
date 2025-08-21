@@ -16,7 +16,6 @@ type State = {
   sideBetAmount: number; // Mise pour les side bets
   message?: string;
   showWinAnimation: boolean;
-  showLoseAnimation: boolean;
   showTieAnimation: boolean;
   cardCounter: CardCounter;
 };
@@ -56,7 +55,6 @@ export const useGame = create<State & Actions>((set, get) => ({
   sideBetAmount: 0, // Initialiser les side bets
   message: undefined,
   showWinAnimation: false,
-  showLoseAnimation: false,
   showTieAnimation: false,
   cardCounter: new CardCounter(),
 
@@ -226,7 +224,7 @@ export const useGame = create<State & Actions>((set, get) => ({
                     }
                   }
                   
-                  // Pair Plus (si on a 3 cartes)
+                  // Pair Plus (vraie logique casino - toutes les combinaisons)
                   if (playerCards.length >= 3) {
                     const card3 = playerCards[2];
                     const ranks = [card1.r, card2.r, card3.r];
@@ -259,8 +257,8 @@ export const useGame = create<State & Actions>((set, get) => ({
                 setTimeout(() => set({ message: undefined }), 4000);
               } else if (delta<0) { 
                 SFX.lose(); 
-                set({ showLoseAnimation: true, bank });
-                setTimeout(() => set({ showLoseAnimation: false }), 2000);
+                set({ bank });
+                // Animation supprimée
                 set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
                 setTimeout(() => set({ message: undefined }), 4000);
               } else {
@@ -362,7 +360,7 @@ export const useGame = create<State & Actions>((set, get) => ({
                     }
                   }
                   
-                  // Pair Plus (si on a 3 cartes)
+                  // Pair Plus (vraie logique casino - toutes les combinaisons)
                   if (playerCards.length >= 3) {
                     const card3 = playerCards[2];
                     const ranks = [card1.r, card2.r, card3.r];
@@ -395,8 +393,8 @@ export const useGame = create<State & Actions>((set, get) => ({
                 setTimeout(() => set({ message: undefined }), 4000);
               } else if (delta<0) { 
                 SFX.lose(); 
-                set({ showLoseAnimation: true, bank });
-                setTimeout(() => set({ showLoseAnimation: false }), 2000);
+                set({ bank });
+                // Animation supprimée
                 set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
                 setTimeout(() => set({ message: undefined }), 4000);
               } else {
@@ -533,8 +531,8 @@ export const useGame = create<State & Actions>((set, get) => ({
             setTimeout(() => set({ message: undefined }), 4000);
           } else if (delta<0) { 
             SFX.lose(); 
-            set({ showLoseAnimation: true, bank });
-            setTimeout(() => set({ showLoseAnimation: false }), 2000);
+            set({ bank });
+            // Animation supprimée
             set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
             setTimeout(() => set({ message: undefined }), 4000);
           } else {
@@ -573,8 +571,8 @@ export const useGame = create<State & Actions>((set, get) => ({
         setTimeout(() => set({ message: undefined }), 4000);
       } else if (delta<0) { 
         SFX.lose(); 
-        set({ showLoseAnimation: true, bank });
-        setTimeout(() => set({ showLoseAnimation: false }), 2000);
+        set({ bank });
+        // Animation supprimée
         set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
         setTimeout(() => set({ message: undefined }), 4000);
       } else {
