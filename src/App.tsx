@@ -29,7 +29,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [g.phase]);
+  }, [g.phase, g]);
 
   const dealerFaceDown = g.phase !== "payout" && g.phase !== "dealer";
   const canInsurance = g.phase === "player" && g.dealer[0]?.r === "A";

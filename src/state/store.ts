@@ -101,12 +101,20 @@ export const useGame = create<State & Actions>((set, get) => ({
   // Rejouer la dernière mise
   rejouerMise: () => {
     const st = get();
+    console.log("=== DEBUG REJOUER ===");
+    console.log("lastBetAmount:", st.lastBetAmount);
+    console.log("bank:", st.bank);
+    console.log("Condition:", st.lastBetAmount > 0 && st.bank >= st.lastBetAmount);
+    
     if (st.lastBetAmount > 0 && st.bank >= st.lastBetAmount) {
       SFX.chip();
       const betAmount = st.lastBetAmount;
       const bank = st.bank - st.lastBetAmount;
+      console.log("Mise rejouée:", betAmount, "€, nouvelle banque:", bank, "€");
       localStorage.setItem(LS_KEY, String(bank));
       set({ betAmount, bank });
+    } else {
+      console.log("Impossible de rejouer la mise");
     }
   },
 
@@ -138,6 +146,7 @@ export const useGame = create<State & Actions>((set, get) => ({
     const dealer: Card[] = [dealerCard1, dealerCard2];
     
     // Sauvegarder la mise pour pouvoir la rejouer
+    console.log("Sauvegarde de la mise:", st.betAmount, "€");
     set({ lastBetAmount: st.betAmount });
     
     SFX.deal();
@@ -159,8 +168,8 @@ export const useGame = create<State & Actions>((set, get) => ({
           setTimeout(() => {
             const finalSt = get();
             if (finalSt.phase === "payout") {
-              let delta = 0;
-              finalSt.hands.forEach((h) => (delta += payoutOne(h, finalSt.dealer)));
+              let delta = 0; console.log("=== DEBUG PAYOUT ===");
+              finalSt.hands.forEach((h) => { const payout = payoutOne(h, finalSt.dealer); console.log("Main payout:", payout, "€ (bet:", h.bet, "€)"); delta += payout; });
               const dealerBJ = handScore(finalSt.dealer).isBJ;
               finalSt.hands.forEach((h) => {
                 if (h.insured) {
@@ -176,7 +185,7 @@ export const useGame = create<State & Actions>((set, get) => ({
               });
               
               // CORRECTION : Rembourser la mise + ajouter le gain/perte
-              const bank = Math.max(0, finalSt.bank + delta + finalSt.betAmount);
+              console.log("Delta final:", delta, "€"); const bank = Math.max(0, finalSt.bank + delta + finalSt.betAmount);
               localStorage.setItem(LS_KEY, String(bank));
               if (delta>0) { 
                 SFX.win(); 
@@ -248,8 +257,8 @@ export const useGame = create<State & Actions>((set, get) => ({
           setTimeout(() => {
             const finalSt = get();
             if (finalSt.phase === "payout") {
-              let delta = 0;
-              finalSt.hands.forEach((h) => (delta += payoutOne(h, finalSt.dealer)));
+              let delta = 0; console.log("=== DEBUG PAYOUT ===");
+              finalSt.hands.forEach((h) => { const payout = payoutOne(h, finalSt.dealer); console.log("Main payout:", payout, "€ (bet:", h.bet, "€)"); delta += payout; });
               const dealerBJ = handScore(finalSt.dealer).isBJ;
               finalSt.hands.forEach((h) => {
                 if (h.insured) {
@@ -265,7 +274,7 @@ export const useGame = create<State & Actions>((set, get) => ({
               });
               
               // CORRECTION : Rembourser la mise + ajouter le gain/perte
-              const bank = Math.max(0, finalSt.bank + delta + finalSt.betAmount);
+              console.log("Delta final:", delta, "€"); const bank = Math.max(0, finalSt.bank + delta + finalSt.betAmount);
               localStorage.setItem(LS_KEY, String(bank));
               if (delta>0) { 
                 SFX.win(); 
@@ -386,7 +395,7 @@ export const useGame = create<State & Actions>((set, get) => ({
         const currentSt = get();
         if (currentSt.phase === "payout") {
           // Calculer le résultat automatiquement
-          let delta = 0;
+          let delta = 0; console.log("=== DEBUG PAYOUT ===");
           currentSt.hands.forEach((h) => (delta += payoutOne(h, currentSt.dealer)));
           const dealerBJ = handScore(currentSt.dealer).isBJ;
           currentSt.hands.forEach((h) => {
@@ -426,7 +435,7 @@ export const useGame = create<State & Actions>((set, get) => ({
         }
       }, 2000);
     } else if (st.phase === "payout") {
-      let delta = 0;
+      let delta = 0; console.log("=== DEBUG PAYOUT ===");
       st.hands.forEach((h) => (delta += payoutOne(h, st.dealer)));
       const dealerBJ = handScore(st.dealer).isBJ;
       st.hands.forEach((h) => {
