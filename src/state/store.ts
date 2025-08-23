@@ -286,7 +286,9 @@ export const useGame = create<GameState>()(
                   // Si delta > 0 : gain (on récupère la mise + gain)
                   // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
                   // Si delta = 0 : égalité (on récupère la mise)
-                  const bank = Math.max(0, finalSt.bank + totalGains);
+                  // CORRECTION : Ajouter aussi le remboursement des side bets
+                  const totalWithSideBets = totalGains + finalSt.sideBetAmount;
+                  const bank = Math.max(0, finalSt.bank + totalWithSideBets);
                   localStorage.setItem(LS_KEY, String(bank));
                   if (delta>0) { 
                     SFX.win(); 
@@ -304,7 +306,7 @@ export const useGame = create<GameState>()(
                     set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
                     setTimeout(() => set({ message: undefined }), 3000);
                   }
-                  set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
+                  set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0, sideBetAmount: 0 });
                   if (finalSt.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
                 }
               }, 2000);
@@ -625,24 +627,29 @@ export const useGame = create<GameState>()(
               // CORRECTION : Rembourser la mise + ajouter le gain/perte
               const bank = Math.max(0, currentSt.bank + delta);
               localStorage.setItem(LS_KEY, String(bank));
+              
+              // CORRECTION : Ajouter aussi le remboursement des side bets
+              const totalWithSideBets = delta + currentSt.sideBetAmount;
+              const finalBank = Math.max(0, currentSt.bank + totalWithSideBets);
+              localStorage.setItem(LS_KEY, String(finalBank));
               if (delta>0) { 
                 SFX.win(); 
-                set({ showWinAnimation: true, bank });
+                set({ showWinAnimation: true, bank: finalBank });
                 setTimeout(() => set({ showWinAnimation: false }), 2000);
                 set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
                 setTimeout(() => set({ message: undefined }), 4000);
               } else if (delta<0) { 
                 SFX.lose(); 
-                set({ bank });
+                set({ bank: finalBank });
                 // Animation supprimée
                 set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
                 setTimeout(() => set({ message: undefined }), 4000);
               } else {
-                set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
+                set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank: finalBank });
                 setTimeout(() => set({ message: undefined }), 3000);
               }
-              set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
-              if (currentSt.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
+              set({ bank: finalBank, phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0, sideBetAmount: 0 });
+              if (st.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
             }
           }, 2000);
         } else if (st.phase === "payout") {
@@ -665,6 +672,11 @@ export const useGame = create<GameState>()(
           // CORRECTION : Rembourser la mise + ajouter le gain/perte
           const bank = Math.max(0, st.bank + delta);
           localStorage.setItem(LS_KEY, String(bank));
+          
+          // CORRECTION : Ajouter aussi le remboursement des side bets
+          const totalWithSideBets = delta + st.sideBetAmount;
+          const finalBank = Math.max(0, st.bank + totalWithSideBets);
+          localStorage.setItem(LS_KEY, String(finalBank));
           if (delta>0) { 
             SFX.win(); 
             set({ showWinAnimation: true, bank });
@@ -681,7 +693,7 @@ export const useGame = create<GameState>()(
             set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
             setTimeout(() => set({ message: undefined }), 3000);
           }
-          set({ bank, phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
+          set({ bank: finalBank, phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0, sideBetAmount: 0 });
           if (st.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
         }
       },
@@ -692,16 +704,32 @@ export const useGame = create<GameState>()(
       // Ajouter à la mise side bet globale
       addSideBetAmount: (amount: number) => {
         const current = get();
+        
+        // CORRECTION : Vérifier que le joueur a assez d'argent pour la mise totale
+        if (amount > current.bank) return;
+        
+        // CORRECTION : Retirer l'argent de la banque immédiatement
+        const bank = current.bank - amount;
+        localStorage.setItem(LS_KEY, String(bank));
+        
+        // Mettre à jour le montant du side bet
         const newAmount = current.sideBetAmount + amount;
         
-        // Vérifier que le joueur a assez d'argent
-        if (newAmount > current.bank) return;
-        
-        set({ sideBetAmount: newAmount });
+        set({ sideBetAmount: newAmount, bank });
       },
       
       // Effacer la mise side bet globale
-      clearSideBet: () => set({ sideBetAmount: 0 }),
+      clearSideBet: () => {
+        const current = get();
+        if (current.sideBetAmount > 0) {
+          // CORRECTION : Rembourser l'argent des side bets
+          const bank = current.bank + current.sideBetAmount;
+          localStorage.setItem(LS_KEY, String(bank));
+          set({ sideBetAmount: 0, bank });
+        } else {
+          set({ sideBetAmount: 0 });
+        }
+      },
       
       setSideBetResults: (results: SideBetResult[]) => set({ sideBetResults: results }),
       
