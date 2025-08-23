@@ -13,8 +13,8 @@ interface CardProps {
 export default function Card({ card, hidden, sideBets, isDoubled }: CardProps) {
   if (hidden) {
     return (
-      <div className="w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-32 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg border-2 border-blue-400 shadow-lg flex items-center justify-center">
-        <div className="w-12 h-16 bg-blue-500 rounded border border-blue-300"></div>
+      <div className="w-20 h-28 sm:w-24 sm:h-32 md:w-28 md:h-36 lg:w-32 lg:h-40 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg border-2 border-blue-400 shadow-lg flex items-center justify-center">
+        <div className="w-16 h-20 bg-blue-500 rounded border border-blue-300"></div>
       </div>
     );
   }
@@ -46,23 +46,23 @@ export default function Card({ card, hidden, sideBets, isDoubled }: CardProps) {
 
   return (
     <div className="relative">
-      {/* Carte principale - style plus réaliste */}
-      <div className={`w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-32 bg-gradient-to-br from-white to-gray-50 rounded-lg border-2 border-gray-300 shadow-xl relative overflow-hidden ${isDoubled ? 'ring-4 ring-purple-500' : ''}`}>
-        {/* Coin supérieur gauche */}
-        <div className="absolute top-1 left-1 text-xs font-bold">
+      {/* Carte principale - GROSSIE pour desktop */}
+      <div className={`w-20 h-28 sm:w-24 sm:h-32 md:w-28 md:h-36 lg:w-32 lg:h-40 bg-gradient-to-br from-white to-gray-50 rounded-lg border-2 border-gray-300 shadow-xl relative overflow-hidden ${isDoubled ? 'ring-4 ring-purple-500' : ''}`}>
+        {/* Coin supérieur gauche - PLUS GROS */}
+        <div className="absolute top-2 left-2 text-sm sm:text-base font-bold">
           <div className={getSuitColor(card.s)}>{getRankDisplay(card.r)}</div>
           <div className={getSuitColor(card.s)}>{getSuitSymbol(card.s)}</div>
         </div>
         
-        {/* Coin inférieur droit (roté) */}
-        <div className="absolute bottom-1 right-1 text-xs font-bold transform rotate-180">
+        {/* Coin inférieur droit (roté) - PLUS GROS */}
+        <div className="absolute bottom-2 right-2 text-sm sm:text-base font-bold transform rotate-180">
           <div className={getSuitColor(card.s)}>{getRankDisplay(card.r)}</div>
           <div className={getSuitColor(card.s)}>{getSuitSymbol(card.s)}</div>
         </div>
         
-        {/* Symbole central - plus grand et centré */}
+        {/* Symbole central - BEAUCOUP PLUS GROS */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className={`text-3xl sm:text-4xl md:text-5xl font-bold ${getSuitColor(card.s)}`}>
+          <div className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold ${getSuitColor(card.s)}`}>
             {getSuitSymbol(card.s)}
           </div>
         </div>

@@ -46,34 +46,28 @@ export default function App() {
       <div className="flex-1 p-4">
         
         {/* Zone du croupier */}
-        <div className="mb-8">
+        <div className="mb-6">
           {/* En-tête avec sabot et solde */}
           <div className="flex justify-between items-start mb-4">
             {/* Solde du joueur en haut à gauche */}
             <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-bold text-lg border-2 border-green-300 shadow-lg">
-              SOLDE: {g.bank}{CURRENCY}
-            </div>
-            
-            {/* Sabot de cartes en haut à droite */}
-            <div className="bg-black rounded-lg w-16 h-20 flex items-center justify-center border-2 border-gray-600 shadow-lg relative">
-              <div className="w-12 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded border-2 border-blue-300 flex items-center justify-center">
-                <div className="text-white text-xs font-bold">🎴</div>
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded border border-blue-200 transform rotate-12"></div>
+              SOLDE: {g.bank.toLocaleString('fr-FR')}{CURRENCY}
             </div>
           </div>
           
-          {/* Cartes du croupier */}
-          <div className="flex justify-center items-center gap-2 mb-4">
+          {/* Cartes du croupier - GROSSIES */}
+          <div className="flex justify-center items-center gap-3 mb-4">
             {g.dealer.map((c, i) => (
-              <Card key={i} card={c} hidden={i === 1 && g.phase !== "payout" && g.phase !== "dealer"} />
+              <div key={i} className="transform hover:scale-105 transition-transform">
+                <Card card={c} hidden={i === 1 && g.phase !== "payout" && g.phase !== "dealer"} />
+              </div>
             ))}
           </div>
           
-          {/* Score du croupier */}
+          {/* Score du croupier - PLUS GROS */}
           {g.dealer.length > 0 && (
             <div className="flex justify-center">
-              <div className="bg-white text-black px-4 py-2 rounded-lg font-bold text-xl border-2 border-red-500">
+              <div className="bg-white text-black px-6 py-3 rounded-lg font-bold text-2xl border-2 border-red-500 shadow-lg">
                 {g.phase !== "payout" && g.phase !== "dealer" ? 
                   handScore([g.dealer[0]]).total : 
                   handScore(g.dealer).total}
@@ -82,62 +76,94 @@ export default function App() {
           )}
         </div>
 
-        {/* Zone centrale - Mise actuelle */}
-        <div className="text-center mb-4">
+        {/* Zone centrale - Mise actuelle - PLUS GROSSE */}
+        <div className="text-center mb-6">
           {/* Jeton de mise actuelle */}
           {g.betAmount > 0 && (
-            <div className="text-center mb-3">
-              <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-black rounded-full w-20 h-20 md:w-24 md:h-24 flex items-center justify-center font-bold text-lg md:text-xl border-4 border-yellow-300 mx-auto shadow-xl animate-pulse">
-                {g.betAmount}{CURRENCY}
+            <div className="text-center mb-4">
+              <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-black rounded-full w-28 h-28 md:w-32 md:h-32 flex items-center justify-center font-bold text-xl md:text-2xl border-4 border-yellow-300 mx-auto shadow-xl animate-pulse">
+                {g.betAmount.toLocaleString('fr-FR')}{CURRENCY}
               </div>
-              <div className="text-yellow-200 text-xs mt-1 font-medium">MISE ACTUELLE</div>
+              <div className="text-yellow-200 text-sm mt-2 font-medium">MISE ACTUELLE</div>
+            </div>
+          )}
+          
+          {/* Messages de résultat - EXPRESSIFS */}
+          {g.message && (
+            <div className="text-center mb-4">
+              {g.message.includes("Victoire") || g.message.includes("WIN") ? (
+                <div className="text-green-500 text-4xl md:text-5xl font-bold animate-pulse bg-green-900/20 px-8 py-4 rounded-2xl border-2 border-green-400 shadow-2xl">
+                  🎉 WIN ✨
+                </div>
+              ) : g.message.includes("Perte") || g.message.includes("BUST") || g.message.includes("BUSTED") ? (
+                <div className="text-red-500 text-4xl md:text-5xl font-bold animate-pulse bg-red-900/20 px-8 py-4 rounded-2xl border-2 border-red-400 shadow-2xl">
+                  💔 BUSTED 🥹
+                </div>
+              ) : g.message.includes("Égalité") || g.message.includes("PUSH") ? (
+                <div className="text-blue-500 text-4xl md:text-5xl font-bold animate-pulse bg-blue-900/20 px-8 py-4 rounded-2xl border-2 border-blue-400 shadow-2xl">
+                  🤝 PUSH!
+                </div>
+              ) : (
+                <div className="text-yellow-500 text-3xl md:text-4xl font-bold bg-yellow-900/20 px-6 py-3 rounded-xl border-2 border-yellow-400 shadow-xl">
+                  {g.message}
+                </div>
+              )}
+              
+              {/* Explication du PUSH */}
+              {g.message.includes("Égalité") && (
+                <div className="text-blue-400 text-base mt-3">
+                  Votre mise vous est remboursée - pas de gain, pas de perte
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        {/* Zone du joueur */}
-        <div className="mb-4">
+        {/* Zone du joueur - GROSSIE */}
+        <div className="mb-6">
           {/* Cartes du joueur */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {g.hands.map((hand, handIndex) => {
               const isActive = handIndex === g.active && g.phase === "player";
               const score = handScore(hand.cards);
               
               return (
-                <div key={hand.id} className={`text-center ${handIndex > 0 ? 'mt-4' : ''}`}>
+                <div key={hand.id} className={`text-center ${handIndex > 0 ? 'mt-6' : ''}`}>
                   {/* Titre de la main si divisée */}
                   {g.hands.length > 1 && (
-                    <div className="text-white text-sm mb-2 font-bold">
+                    <div className="text-white text-base mb-3 font-bold">
                       Main {handIndex + 1}
                       {isActive && <span className="text-yellow-400 ml-2">(Active)</span>}
                     </div>
                   )}
                   
-                  {/* Cartes de cette main */}
-                  <div className="flex justify-center items-center gap-1 mb-2">
+                  {/* Cartes de cette main - GROSSIES */}
+                  <div className="flex justify-center items-center gap-3 mb-3">
                     {hand.cards.map((c, i) => (
-                      <Card key={i} card={c} />
+                      <div key={i} className="transform hover:scale-105 transition-transform">
+                        <Card card={c} />
+                      </div>
                     ))}
                   </div>
                   
-                  {/* Score de cette main */}
+                  {/* Score de cette main - PLUS GROS */}
                   <div className="flex justify-center">
-                    <div className={`px-3 py-1 rounded-lg font-bold text-lg border-2 shadow-lg ${
+                    <div className={`px-6 py-3 rounded-lg font-bold text-2xl border-2 shadow-lg ${
                       isActive 
                         ? 'bg-white text-black border-yellow-400' 
                         : 'bg-gray-700 text-white border-gray-500'
                     }`}>
                       {score.total}
                       {score.softTotal && score.softTotal !== score.total && (
-                        <span className="text-blue-600 ml-1">/ {score.softTotal}</span>
+                        <span className="text-blue-600 ml-2">/ {score.softTotal}</span>
                       )}
                     </div>
                   </div>
                   
-                  {/* Mise de cette main */}
-                  <div className="text-white text-xs mt-1 opacity-80">
-                    Mise: {hand.bet}{CURRENCY}
-                    {hand.doubled && <span className="text-purple-400 ml-1">(Doublée)</span>}
+                  {/* Mise de cette main - PLUS GROSSE */}
+                  <div className="text-white text-sm mt-2 opacity-80">
+                    Mise: {hand.bet.toLocaleString('fr-FR')}{CURRENCY}
+                    {hand.doubled && <span className="text-purple-400 ml-2">(Doublée)</span>}
                   </div>
                 </div>
               );
@@ -145,34 +171,81 @@ export default function App() {
           </div>
         </div>
 
-        {/* Bouton AUDIT avec conseil stratégique */}
-        {g.phase === "player" && g.hands[g.active] && (
-          <div className="text-center mb-4">
-            <button 
-              onClick={() => setShowStrategy(!showStrategy)}
-              className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-bold text-lg shadow-lg border-2 border-orange-400 hover:scale-105 transition-all"
-            >
-              🔍 AUDIT - Conseils Stratégiques
-            </button>
-            
-            {showStrategy && (
-              <div className="mt-3 bg-black/80 backdrop-blur p-4 rounded-lg border-2 border-orange-400 max-w-md mx-auto">
-                <div className="text-orange-300 text-sm font-bold mb-2">📊 CONSEIL STRATÉGIQUE</div>
-                <div className="text-white text-lg font-bold mb-2">
-                  {getStrategyAdvice()}
+        {/* Zone droite - Boutons d'action et AUDIT */}
+        <div className="fixed right-4 top-1/2 transform -translate-y-1/2 w-64 bg-black/20 backdrop-blur rounded-lg border-2 border-blue-500/50 p-4 z-10">
+          {/* Bouton AUDIT avec conseil stratégique */}
+          {g.phase === "player" && g.hands[g.active] && (
+            <div className="mb-4">
+              <button 
+                onClick={() => setShowStrategy(!showStrategy)}
+                className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white px-4 py-3 rounded-lg font-bold text-sm shadow-lg border-2 border-orange-400 hover:scale-105 transition-all"
+              >
+                🔍 AUDIT - Conseils Stratégiques
+              </button>
+              
+              {showStrategy && (
+                <div className="mt-3 bg-black/80 backdrop-blur p-3 rounded-lg border-2 border-orange-400">
+                  <div className="text-orange-300 text-xs font-bold mb-2">📊 CONSEIL STRATÉGIQUE</div>
+                  <div className="text-white text-sm font-bold mb-2">
+                    {getStrategyAdvice()}
+                  </div>
+                  <div className="text-gray-300 text-xs opacity-80">
+                    Basé sur vos cartes et la carte du croupier
+                  </div>
                 </div>
-                <div className="text-gray-300 text-xs opacity-80">
-                  Basé sur vos cartes et la carte du croupier
-                </div>
+              )}
+            </div>
+          )}
+
+          {/* Boutons d'action du joueur */}
+          {g.phase === "player" && g.hands[g.active] && (
+            <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-2 border-blue-600/50 rounded-lg p-3">
+              <div className="text-center text-blue-200 text-xs font-bold mb-3">🎮 ACTIONS DISPONIBLES</div>
+              <div className="space-y-2">
+                {/* Bouton DOUBLER - seulement si on a 2 cartes et assez d'argent */}
+                {!g.hands[g.active].doubled && g.hands[g.active].cards.length === 2 && g.bank >= g.hands[g.active].bet && (
+                  <button onClick={g.doubleDown} className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:from-purple-500 hover:to-purple-600 transition-all shadow-lg border-2 border-purple-400">
+                    <span className="text-sm">x2</span>
+                    <span>Doubler</span>
+                  </button>
+                )}
+                
+                {/* Bouton SPLIT - seulement si on a une paire et assez d'argent */}
+                {g.hands[g.active].cards.length === 2 && 
+                 g.hands[g.active].cards[0].r === g.hands[g.active].cards[1].r && 
+                 g.bank >= g.hands[g.active].bet && (
+                  <button onClick={g.split} className="w-full bg-gradient-to-r from-orange-600 to-orange-700 text-white px-3 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:from-orange-500 hover:to-orange-600 transition-all shadow-lg border-2 border-orange-400">
+                    <span className="text-sm">✂️</span>
+                    <span>Diviser</span>
+                  </button>
+                )}
+                
+                {/* Bouton SURRENDER - seulement au début avec 2 cartes */}
+                {g.hands[g.active].cards.length === 2 && (
+                  <button onClick={g.surrender} className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:from-red-500 hover:to-red-600 transition-all shadow-lg border-2 border-red-400">
+                    <span className="text-sm">🏳️</span>
+                    <span>Abandonner</span>
+                  </button>
+                )}
+                
+                <button onClick={g.stand} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:from-blue-500 hover:to-blue-600 transition-all shadow-lg border-2 border-blue-400">
+                  <span className="text-sm">✋</span>
+                  <span>Rester</span>
+                </button>
+                
+                <button onClick={g.hit} className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:from-green-500 hover:to-green-600 transition-all shadow-lg border-2 border-green-400">
+                  <span className="text-sm">🎯</span>
+                  <span>Tirer</span>
+                </button>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         {/* Zone de contrôle - Bande de bois en bas */}
         <div className="bg-amber-700 border-t-4 border-amber-800 p-3 rounded-t-3xl shadow-lg">
           {/* Jetons de mise */}
-          {g.phase === "betting" && (
+          {g.phase === "betting" && g.betAmount < g.bank && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 max-w-2xl mx-auto">
               <button onClick={() => g.addChip(1)} className="bg-gradient-to-br from-gray-400 to-gray-600 text-white rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center font-bold text-base md:text-lg border-3 border-gray-300 shadow-lg hover:scale-110 transition-all hover:shadow-xl">
                 1
@@ -189,6 +262,18 @@ export default function App() {
             </div>
           )}
           
+          {/* Message quand ALL IN - Plus de jetons visibles */}
+          {g.phase === "betting" && g.betAmount >= g.bank && g.bank > 0 && (
+            <div className="text-center mb-4">
+              <div className="bg-gradient-to-r from-red-600 to-red-800 text-white px-6 py-3 rounded-lg font-bold text-lg border-2 border-red-400 shadow-lg">
+                🚀 ALL IN - Plus de jetons disponibles
+              </div>
+              <div className="text-red-200 text-xs mt-2 opacity-80">
+                Votre mise est au maximum - Cliquez sur JOUER !
+              </div>
+            </div>
+          )}
+          
           {/* Bouton ALL IN - REMIS */}
           {g.phase === "betting" && g.bank > 0 && (
             <div className="text-center mb-4">
@@ -196,7 +281,7 @@ export default function App() {
                 onClick={() => g.addChip(g.bank)}
                 className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-4 rounded-lg font-bold text-xl shadow-lg border-2 border-red-400 hover:scale-105 transition-all hover:shadow-xl animate-pulse"
               >
-                🚀 ALL IN - {g.bank}{CURRENCY}
+                🚀 ALL IN - {g.bank.toLocaleString('fr-FR')}{CURRENCY}
               </button>
               <div className="text-red-200 text-xs mt-2 opacity-80">Misez tout votre solde !</div>
             </div>
@@ -211,24 +296,6 @@ export default function App() {
               <button onClick={g.clearBet} className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-lg font-bold text-base hover:from-red-500 hover:to-red-600 transition-all shadow-lg hover:shadow-xl border-2 border-red-400">
                 🗑️ Effacer
               </button>
-            </div>
-          )}
-          
-          {/* Boutons d'action du joueur */}
-          {g.phase === "player" && g.hands[g.active] && (
-            <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-2 border-blue-600/50 rounded-lg p-3 mb-4">
-              <div className="text-center text-blue-200 text-xs font-bold mb-2">🎮 ACTIONS DISPONIBLES</div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 max-w-4xl mx-auto">
-                <button onClick={g.hit} className="bg-gradient-to-r from-green-600 to-green-700 text-white px-2 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1 hover:from-green-500 hover:to-green-600 transition-all shadow-lg border-2 border-green-400">
-                  <span className="text-sm">🎯</span>
-                  <span className="hidden sm:inline">Tirer</span>
-                </button>
-                
-                <button onClick={g.stand} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-2 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1 hover:from-blue-500 hover:to-blue-600 transition-all shadow-lg border-2 border-blue-400">
-                  <span className="text-sm">✋</span>
-                  <span className="hidden sm:inline">Rester</span>
-                </button>
-              </div>
             </div>
           )}
           
