@@ -329,9 +329,9 @@ export default function App() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-gradient-to-br from-blue-900 to-purple-900 text-white p-8 rounded-2xl border-2 border-blue-400 text-center max-w-md w-full mx-4 shadow-2xl">
             <div className="text-4xl mb-4">🏦</div>
-            <h3 className="text-2xl font-bold mb-6 text-blue-200">Prêt Bancaire</h3>
+            <h3 className="text-2xl font-bold mb-6 text-blue-200">B6 Bank</h3>
             <div className="text-gray-300 mb-6">
-              Vous n'avez plus d'argent ! Empruntez à la banque pour continuer à jouer.
+              Vous n'avez plus d'argent ! Empruntez à B6 Bank pour continuer à jouer.
             </div>
             
             {/* Options de prêt rapides */}
@@ -398,7 +398,7 @@ export default function App() {
               onClick={() => setShowLoanModal(true)}
               className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-6 rounded-2xl font-bold text-2xl shadow-2xl border-4 border-red-400 hover:scale-110 transition-all animate-pulse"
             >
-              🏦 Emprunter de l'argent
+              🏦 Emprunter à B6 Bank
             </button>
           </div>
         </div>
