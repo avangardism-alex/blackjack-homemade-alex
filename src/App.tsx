@@ -8,6 +8,8 @@ import { CURRENCY } from "./config";
 export default function App() {
   const g = useGame();
   const [showStrategy, setShowStrategy] = useState(false);
+  const [showLoanModal, setShowLoanModal] = useState(false);
+  const [customLoanAmount, setCustomLoanAmount] = useState(1000);
 
   // Fonction pour obtenir le conseil de stratégie
   const getStrategyAdvice = () => {
@@ -35,6 +37,12 @@ export default function App() {
     if (playerScore.total === 10 && dealerUpCard <= 9) return "🟡 DOUBLER - Contre croupier faible";
     
     return "🟡 TIRER - Situation neutre";
+  };
+
+  // Fonction pour emprunter de l'argent
+  const borrowMoney = (amount: number) => {
+    g.addBank(amount);
+    setShowLoanModal(false);
   };
 
   return (
@@ -96,7 +104,7 @@ export default function App() {
                   🎉 WIN ✨
                 </div>
               ) : g.message.includes("Perte") || g.message.includes("BUST") || g.message.includes("BUSTED") ? (
-                <div className="text-red-500 text-4xl md:text-5xl font-bold animate-pulse bg-red-900/20 px-8 py-4 rounded-2xl border-2 border-red-400 shadow-2xl">
+                <div className="text-green-500 text-4xl md:text-5xl font-bold animate-pulse bg-green-900/20 px-8 py-4 rounded-2xl border-2 border-green-400 shadow-2xl">
                   💔 BUSTED 🥹
                 </div>
               ) : g.message.includes("Égalité") || g.message.includes("PUSH") ? (
@@ -163,7 +171,7 @@ export default function App() {
                   {/* Mise de cette main - PLUS GROSSE */}
                   <div className="text-white text-sm mt-2 opacity-80">
                     Mise: {hand.bet.toLocaleString('fr-FR')}{CURRENCY}
-                    {hand.doubled && <span className="text-purple-400 ml-2">(Doublée)</span>}
+                    {hand.doubled && <span className="text-purple-400 ml-1">(Doublée)</span>}
                   </div>
                 </div>
               );
@@ -309,6 +317,83 @@ export default function App() {
           )}
         </div>
       </div>
+
+      {/* Modal de prêt bancaire - NOUVEAU */}
+      {showLoanModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-blue-900 to-purple-900 text-white p-8 rounded-2xl border-2 border-blue-400 text-center max-w-md w-full mx-4 shadow-2xl">
+            <div className="text-4xl mb-4">🏦</div>
+            <h3 className="text-2xl font-bold mb-6 text-blue-200">Prêt Bancaire</h3>
+            <div className="text-gray-300 mb-6">
+              Vous n'avez plus d'argent ! Empruntez à la banque pour continuer à jouer.
+            </div>
+            
+            {/* Options de prêt rapides */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <button 
+                onClick={() => borrowMoney(1000)}
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-4 py-3 rounded-lg font-bold hover:scale-105 transition-all shadow-lg border-2 border-green-400"
+              >
+                1000€
+              </button>
+              <button 
+                onClick={() => borrowMoney(2000)}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white px-4 py-3 rounded-lg font-bold hover:scale-105 transition-all shadow-lg border-2 border-blue-400"
+              >
+                2000€
+              </button>
+              <button 
+                onClick={() => borrowMoney(5000)}
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white px-4 py-3 rounded-lg font-bold hover:scale-105 transition-all shadow-lg border-2 border-purple-400"
+              >
+                5000€
+              </button>
+            </div>
+            
+            {/* Montant personnalisé */}
+            <div className="mb-6">
+              <label className="block text-blue-200 text-sm font-bold mb-2">Montant personnalisé :</label>
+              <div className="flex gap-2">
+                <input 
+                  type="number" 
+                  value={customLoanAmount} 
+                  onChange={(e) => setCustomLoanAmount(parseInt(e.target.value) || 1000)}
+                  className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg border-2 border-blue-400 focus:border-blue-300 focus:outline-none"
+                  min="100"
+                  max="50000"
+                  step="100"
+                />
+                <button 
+                  onClick={() => borrowMoney(customLoanAmount)}
+                  className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white px-4 py-3 rounded-lg font-bold hover:scale-105 transition-all shadow-lg border-2 border-orange-400"
+                >
+                  Emprunter
+                </button>
+              </div>
+            </div>
+            
+            {/* Bouton fermer */}
+            <button 
+              onClick={() => setShowLoanModal(false)}
+              className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-bold transition-colors shadow-lg"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bouton d'emprunt quand solde = 0 */}
+      {g.bank === 0 && (
+        <div className="fixed bottom-4 left-4 z-40">
+          <button 
+            onClick={() => setShowLoanModal(true)}
+            className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-6 py-4 rounded-lg font-bold text-lg shadow-lg border-2 border-red-400 hover:scale-105 transition-all animate-pulse"
+          >
+            🏦 Emprunter de l'argent
+          </button>
+        </div>
+      )}
     </div>
   );
 }
