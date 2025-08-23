@@ -92,12 +92,10 @@ export const useGame = create<GameState>()(
       addChip: (amt) => set((st) => {
         SFX.chip();
         const next = Math.min(Math.max(st.betAmount + amt, TABLE_MIN), TABLE_MAX);
-        // Vérifier que le joueur a assez d'argent (permettre de miser exactement la banque)
+        // CORRECTION : Ne pas retirer l'argent immédiatement, seulement vérifier qu'on a assez
         if (next > st.bank) return st;
-        // Retirer l'argent du solde immédiatement
-        const bank = st.bank - amt;
-        localStorage.setItem(LS_KEY, String(bank));
-        return { betAmount: next, bank };
+        // L'argent sera retiré seulement au moment du deal
+        return { betAmount: next };
       }),
 
       // Fonction spéciale pour le TAPIS (miser tout)
@@ -122,16 +120,6 @@ export const useGame = create<GameState>()(
 
       clearBet: () => set({ betAmount: 0 }),
       clearSideBetAmount: () => set({ sideBetAmount: 0 }),
-      
-      // Ajouter aux side bets (nouvelle logique)
-      addSideBetAmount: (amt) => set((st) => {
-        SFX.chip();
-        const next = st.sideBetAmount + amt;
-        if (next > st.bank) return st;
-        const bank = st.bank - amt;
-        localStorage.setItem(LS_KEY, String(bank));
-        return { sideBetAmount: next, bank };
-      }),
       
       // Rejouer la dernière mise
       rejouerMise: () => {
@@ -164,12 +152,16 @@ export const useGame = create<GameState>()(
         const st = get();
         if (st.phase !== "betting" || st.betAmount <= 0 || (st.betAmount > st.bank && st.bank > 0)) return;
         
+        // CORRECTION : Retirer l'argent de la banque au moment du deal
+        const bank = st.bank - st.betAmount;
+        localStorage.setItem(LS_KEY, String(bank));
+        
         // Vérifier si on doit reshuffler
         if (st.shoe.length < 20) {
           console.log("🔄 Reshuffle automatique - moins de 20 cartes restantes");
           const newShoe = shuffle(buildDeck(1));
           st.cardCounter.reset(); // Reset le compteur pour nouveau deck
-          set({ shoe: newShoe });
+          set({ shoe: newShoe, bank });
           return;
         }
         
@@ -290,7 +282,7 @@ export const useGame = create<GameState>()(
                   const totalGains = delta + sideBetGains;
                   console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
                   
-                  // CORRECTION : La mise est déjà déduite du solde, donc on ajoute seulement le delta
+                  // CORRECTION : L'argent a été retiré au moment du deal, donc on rembourse la mise + gains
                   // Si delta > 0 : gain (on récupère la mise + gain)
                   // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
                   // Si delta = 0 : égalité (on récupère la mise)
@@ -454,7 +446,7 @@ export const useGame = create<GameState>()(
                   const totalGains = delta + sideBetGains;
                   console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
                   
-                  // CORRECTION : La mise est déjà déduite du solde, donc on ajoute seulement le delta
+                  // CORRECTION : L'argent a été retiré au moment du deal, donc on rembourse la mise + gains
                   // Si delta > 0 : gain (on récupère la mise + gain)
                   // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
                   // Si delta = 0 : égalité (on récupère la mise)
@@ -498,7 +490,7 @@ export const useGame = create<GameState>()(
         h.bet *= 2; 
         h.doubled = true;
         
-        // Retirer la mise supplémentaire de la banque
+        // CORRECTION : Retirer la mise supplémentaire de la banque maintenant
         const additionalBet = originalBet;
         const bank = st.bank - additionalBet;
         
@@ -539,13 +531,17 @@ export const useGame = create<GameState>()(
         const h = st.hands[st.active];
         if (h.cards.length !== 2 || h.cards[0].r !== h.cards[1].r) return;
         if (st.bank < h.bet) return;
+        
+        // CORRECTION : Retirer l'argent de la banque maintenant
+        const bank = st.bank - h.bet;
+        localStorage.setItem(LS_KEY, String(bank));
+        
         const shoe = st.shoe.slice();
         const h1: Hand = { id: crypto.randomUUID(), cards: [h.cards[0], shoe.shift()!], bet: h.bet };
         const h2: Hand = { id: crypto.randomUUID(), cards: [h.cards[1], shoe.shift()!], bet: h.bet };
         const hands = st.hands.slice();
         hands.splice(st.active, 1, h1, h2);
-        const bank = st.bank - h.bet;
-        localStorage.setItem(LS_KEY, String(bank));
+        
         SFX.deal();
         set({ hands, shoe, bank });
       },
