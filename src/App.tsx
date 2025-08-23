@@ -55,12 +55,10 @@ export default function App() {
 
   // Afficher le modal d'assurance automatiquement
   useEffect(() => {
-    // L'assurance n'est proposée qu'une seule fois au début de la main
-    // et seulement si le croupier a un As ET qu'on n'a pas encore joué
     if (canInsurance && 
         !currentHand?.insured && 
         g.phase === "player" && 
-        currentHand?.cards.length === 2) { // Seulement au début avec 2 cartes
+        currentHand?.cards.length === 2) {
       setShowInsuranceModal(true);
     }
   }, [canInsurance, currentHand?.insured, g.phase, currentHand?.cards.length]);
@@ -87,9 +85,9 @@ export default function App() {
       {/* Zone principale du jeu - Tapis vert */}
       <div className="flex-1 p-4">
         
-                  {/* Zone du croupier */}
-          <div className="mb-8">
-                      {/* En-tête avec sabot et solde */}
+        {/* Zone du croupier */}
+        <div className="mb-8">
+          {/* En-tête avec sabot et solde */}
           <div className="flex justify-between items-start mb-4">
             {/* Solde du joueur en haut à gauche */}
             <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-bold text-lg border-2 border-green-300 shadow-lg">
@@ -97,7 +95,7 @@ export default function App() {
             </div>
             
             {/* Sabot de cartes en haut à droite - AMÉLIORÉ */}
-            <div className="bg-black rounded-lg w-16 h-20 flex items-center justify-center border-2 border-gray-600 shadow-lg">
+            <div className="bg-black rounded-lg w-16 h-20 flex items-center justify-center border-2 border-gray-600 shadow-lg relative">
               <div className="w-12 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded border-2 border-blue-300 flex items-center justify-center">
                 <div className="text-white text-xs font-bold">🎴</div>
               </div>
@@ -117,9 +115,7 @@ export default function App() {
             <div className="flex justify-center">
               <div className="bg-white text-black px-4 py-2 rounded-lg font-bold text-xl border-2 border-red-500">
                 {dealerFaceDown ? 
-                  // Si la deuxième carte est cachée, afficher seulement la première carte
                   handScore([g.dealer[0]]).total : 
-                  // Sinon afficher le score total
                   (dealerScore?.total || 0)}
               </div>
             </div>
@@ -264,7 +260,7 @@ export default function App() {
           )}
         </div>
 
-        {/* Zone du joueur - OPTIMISÉE */}
+        {/* Zone du joueur */}
         <div className="mb-4">
           {/* Cartes du joueur - gérer les mains divisées - COMPRESSÉES */}
           <div className="space-y-2">
@@ -312,8 +308,6 @@ export default function App() {
               );
             })}
           </div>
-          
-
         </div>
 
         {/* Zone de contrôle - Bande de bois en bas - OPTIMISÉE */}
@@ -355,8 +349,6 @@ export default function App() {
               </button>
             </div>
           )}
-          
-
           
           {g.phase === "payout" && (
             <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 border-2 border-green-600/50 rounded-lg p-3 mb-4">
