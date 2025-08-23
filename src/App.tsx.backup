@@ -131,7 +131,7 @@ export default function App() {
           {/* Jeton de mise actuelle */}
           {g.betAmount > 0 && (
             <div className="bg-black text-white rounded-full w-20 h-20 flex items-center justify-center font-bold text-lg border-2 border-gray-600 mx-auto mb-4 shadow-lg">
-              {g.betAmount}<br/>LAS VEGAS
+              {g.betAmount}
             </div>
           )}
           
@@ -237,16 +237,16 @@ export default function App() {
           {g.phase === "betting" && (
             <div className="flex justify-center gap-3 mb-4">
               <button onClick={() => g.addChip(1)} className="bg-gray-500 text-white rounded-full w-14 h-14 flex items-center justify-center font-bold border-2 border-gray-600 shadow-lg hover:scale-105 transition-transform">
-                1<br/>LAS VEGAS
+                1
               </button>
               <button onClick={() => g.addChip(10)} className="bg-blue-600 text-white rounded-full w-14 h-14 flex items-center justify-center font-bold border-2 border-blue-700 shadow-lg hover:scale-105 transition-transform">
-                10<br/>LAS VEGAS
+                10
               </button>
               <button onClick={() => g.addChip(25)} className="bg-green-600 text-white rounded-full w-14 h-14 flex items-center justify-center font-bold border-2 border-green-700 shadow-lg hover:scale-105 transition-transform">
-                25<br/>LAS VEGAS
+                25
               </button>
               <button onClick={() => g.addChip(100)} className="bg-black text-white rounded-full w-14 h-14 flex items-center justify-center font-bold border-2 border-gray-600 shadow-lg hover:scale-105 transition-transform">
-                100<br/>LAS VEGAS
+                100
               </button>
             </div>
           )}
