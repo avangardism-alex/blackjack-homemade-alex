@@ -269,7 +269,12 @@ export const useGame = create<State & Actions>((set, get) => ({
               // CORRECTION : Rembourser la mise + ajouter le gain/perte + side bets
               const totalGains = delta + sideBetGains;
               console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
-              const bank = Math.max(0, finalSt.bank + totalGains + finalSt.betAmount);
+              
+              // CORRECTION : La mise est déjà déduite du solde, donc on ajoute seulement le delta
+              // Si delta > 0 : gain (on récupère la mise + gain)
+              // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
+              // Si delta = 0 : égalité (on récupère la mise)
+              const bank = Math.max(0, finalSt.bank + totalGains);
               localStorage.setItem(LS_KEY, String(bank));
               if (delta>0) { 
                 SFX.win(); 
@@ -428,7 +433,12 @@ export const useGame = create<State & Actions>((set, get) => ({
               // CORRECTION : Rembourser la mise + ajouter le gain/perte + side bets
               const totalGains = delta + sideBetGains;
               console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
-              const bank = Math.max(0, finalSt.bank + totalGains + finalSt.betAmount);
+              
+              // CORRECTION : La mise est déjà déduite du solde, donc on ajoute seulement le delta
+              // Si delta > 0 : gain (on récupère la mise + gain)
+              // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
+              // Si delta = 0 : égalité (on récupère la mise)
+              const bank = Math.max(0, finalSt.bank + totalGains);
               localStorage.setItem(LS_KEY, String(bank));
               if (delta>0) { 
                 SFX.win(); 
@@ -597,7 +607,7 @@ export const useGame = create<State & Actions>((set, get) => ({
           });
           
           // CORRECTION : Rembourser la mise + ajouter le gain/perte
-          const bank = Math.max(0, currentSt.bank + delta + currentSt.betAmount);
+          const bank = Math.max(0, currentSt.bank + delta);
           localStorage.setItem(LS_KEY, String(bank));
           if (delta>0) { 
             SFX.win(); 
@@ -637,7 +647,7 @@ export const useGame = create<State & Actions>((set, get) => ({
       });
       
       // CORRECTION : Rembourser la mise + ajouter le gain/perte
-      const bank = Math.max(0, st.bank + delta + st.betAmount);
+      const bank = Math.max(0, st.bank + delta);
       localStorage.setItem(LS_KEY, String(bank));
       if (delta>0) { 
         SFX.win(); 

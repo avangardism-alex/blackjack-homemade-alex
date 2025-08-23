@@ -10,6 +10,12 @@ export default function App() {
   const [showStrategy, setShowStrategy] = useState(false);
   const [showLoanModal, setShowLoanModal] = useState(false);
   const [customLoanAmount, setCustomLoanAmount] = useState(1000);
+  const [forceUpdate, setForceUpdate] = useState(0);
+
+  // Forcer la mise à jour quand g.bank change
+  useEffect(() => {
+    setForceUpdate(prev => prev + 1);
+  }, [g.bank]);
 
   // Fonction pour obtenir le conseil de stratégie
   const getStrategyAdvice = () => {
@@ -383,8 +389,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Bouton d'emprunt quand solde = 0 */}
-      {g.bank === 0 && (
+      {/* Bouton d'emprunt quand solde = 0 ET en phase betting */}
+      {g.bank === 0 && g.phase === "betting" && (
         <div className="fixed inset-0 flex items-center justify-center z-40">
           <div className="bg-black/20 backdrop-blur-sm absolute inset-0"></div>
           <div className="relative z-50">
@@ -397,17 +403,6 @@ export default function App() {
           </div>
         </div>
       )}
-
-      {/* DEBUG TEMPORAIRE - À SUPPRIMER */}
-      <div className="fixed top-20 left-4 bg-black/80 text-white p-2 rounded text-xs z-50">
-        DEBUG: g.bank = {g.bank} (type: {typeof g.bank})
-        <br />
-        g.bank === 0: {g.bank === 0 ? 'true' : 'false'}
-        <br />
-        g.bank === "0": {g.bank === "0" ? 'true' : 'false'}
-        <br />
-        g.bank == 0: {g.bank == 0 ? 'true' : 'false'}
-      </div>
     </div>
   );
 }
