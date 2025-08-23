@@ -705,8 +705,16 @@ export const useGame = create<GameState>()(
       addSideBetAmount: (amount: number) => {
         const current = get();
         
+        console.log("=== DEBUG SIDE BET ===");
+        console.log("Montant demandé:", amount, "€");
+        console.log("Side bet actuel:", current.sideBetAmount, "€");
+        console.log("Banque actuelle:", current.bank, "€");
+        
         // CORRECTION : Vérifier que le joueur a assez d'argent pour la mise totale
-        if (amount > current.bank) return;
+        if (amount > current.bank) {
+          console.log("❌ Pas assez d'argent pour miser", amount, "€");
+          return;
+        }
         
         // CORRECTION : Retirer l'argent de la banque immédiatement
         const bank = current.bank - amount;
@@ -714,6 +722,11 @@ export const useGame = create<GameState>()(
         
         // Mettre à jour le montant du side bet
         const newAmount = current.sideBetAmount + amount;
+        
+        console.log("✅ Side bet ajouté:", amount, "€");
+        console.log("Nouveau total side bet:", newAmount, "€");
+        console.log("Nouvelle banque:", bank, "€");
+        console.log("=====================");
         
         set({ sideBetAmount: newAmount, bank });
       },
