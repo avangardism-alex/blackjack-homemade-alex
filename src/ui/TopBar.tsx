@@ -1,35 +1,54 @@
 import React from "react";
 import { useGame } from "../state/store";
 
-export default function TopBar({ bank, onRules, onPlus, onReset }: { 
+export default function TopBar({ 
+  bank, 
+  betAmount,
+  onTableChange, 
+  currentTable 
+}: { 
   bank: number; 
-  onRules: () => void; 
-  onPlus: () => void; 
-  onReset: () => void; 
+  betAmount: number;
+  onTableChange: () => void; 
+  currentTable: string; 
 }) {
   const g = useGame();
   
 
 
   return (
-    <div className="bg-slate-900 border-b-2 border-emerald-500 p-2">
+    <div className="bg-gradient-to-r from-purple-900 to-blue-900 border-b-2 border-purple-500 p-4">
       <div className="flex items-center justify-between">
-        {/* Titre du jeu */}
-        <div className="text-lg font-bold text-emerald-400">
-          🎰 BLACKJACK
+        {/* Titre du jeu et table actuelle */}
+        <div className="flex items-center gap-4">
+          <div className="text-xl font-bold text-purple-200">
+            🎰 BLACKJACK MACAO
+          </div>
+          <div className="text-sm text-purple-300 bg-purple-800/50 px-3 py-1 rounded-lg border border-purple-400">
+            {currentTable}
+          </div>
         </div>
         
-        {/* Boutons d'action */}
-        <div className="flex gap-2">
-
-          <button onClick={onRules} className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold">
-            📖 Règles
-          </button>
-          <button onClick={onPlus} className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
-            +1000€
-          </button>
-          <button onClick={onReset} className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-bold">
-            Reset
+        {/* Informations du joueur */}
+        <div className="flex items-center gap-4">
+          {/* Mise actuelle */}
+          {betAmount > 0 && (
+            <div className="text-yellow-300 text-sm bg-yellow-900/20 px-3 py-1 rounded-lg border border-yellow-400">
+              Mise: {betAmount.toLocaleString('fr-FR')}€
+            </div>
+          )}
+          
+          {/* Solde */}
+          <div className="text-green-300 text-lg font-bold bg-green-900/20 px-4 py-2 rounded-lg border border-green-400">
+            SOLDE: {bank.toLocaleString('fr-FR')}€
+          </div>
+          
+          {/* Bouton changer de table */}
+          <button 
+            onClick={onTableChange}
+            className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold border border-purple-400 transition-colors"
+          >
+            🔄 Changer Table
           </button>
         </div>
       </div>
