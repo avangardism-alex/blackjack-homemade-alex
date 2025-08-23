@@ -68,7 +68,7 @@ export default function SideBets({
             {[1, 5, 25, 100].map((amount) => (
               <button
                 key={amount}
-                onClick={() => onSideBetChange(currentSideBetAmount + amount)}
+                onClick={() => onSideBetChange(amount)}
                 className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white px-3 py-1 rounded text-xs font-bold hover:scale-105 transition-all"
               >
                 +{amount}

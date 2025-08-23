@@ -64,11 +64,9 @@ export default function App() {
       // Effacer la mise side bet
       g.clearSideBet();
     } else {
-      // Vérifier si on peut placer la mise side bet
-      if (SideBetEvaluator.canPlaceSideBet(amount, g.sideBetAmount, g.tableRules, g.bank)) {
-        // Ajouter à la mise side bet globale
-        g.addSideBetAmount(amount);
-      }
+      // CORRECTION : Appeler directement addSideBetAmount sans vérification complexe
+      // La fonction addSideBetAmount gère elle-même les vérifications d'argent
+      g.addSideBetAmount(amount);
     }
   };
 

@@ -92,12 +92,10 @@ export const useGame = create<GameState>()(
       addChip: (amt) => set((st) => {
         SFX.chip();
         const next = Math.min(Math.max(st.betAmount + amt, TABLE_MIN), TABLE_MAX);
-        // Vérifier que le joueur a assez d'argent (permettre de miser exactement la banque)
+        // CORRECTION : Ne pas retirer l'argent immédiatement, seulement vérifier qu'on a assez
         if (next > st.bank) return st;
-        // Retirer l'argent du solde immédiatement
-        const bank = st.bank - amt;
-        localStorage.setItem(LS_KEY, String(bank));
-        return { betAmount: next, bank };
+        // L'argent sera retiré seulement au moment du deal
+        return { betAmount: next };
       }),
 
       // Fonction spéciale pour le TAPIS (miser tout)
@@ -122,16 +120,6 @@ export const useGame = create<GameState>()(
 
       clearBet: () => set({ betAmount: 0 }),
       clearSideBetAmount: () => set({ sideBetAmount: 0 }),
-      
-      // Ajouter aux side bets (nouvelle logique)
-      addSideBetAmount: (amt) => set((st) => {
-        SFX.chip();
-        const next = st.sideBetAmount + amt;
-        if (next > st.bank) return st;
-        const bank = st.bank - amt;
-        localStorage.setItem(LS_KEY, String(bank));
-        return { sideBetAmount: next, bank };
-      }),
       
       // Rejouer la dernière mise
       rejouerMise: () => {
@@ -164,12 +152,16 @@ export const useGame = create<GameState>()(
         const st = get();
         if (st.phase !== "betting" || st.betAmount <= 0 || (st.betAmount > st.bank && st.bank > 0)) return;
         
+        // CORRECTION : Retirer l'argent de la banque au moment du deal
+        const bank = st.bank - st.betAmount;
+        localStorage.setItem(LS_KEY, String(bank));
+        
         // Vérifier si on doit reshuffler
         if (st.shoe.length < 20) {
           console.log("🔄 Reshuffle automatique - moins de 20 cartes restantes");
           const newShoe = shuffle(buildDeck(1));
           st.cardCounter.reset(); // Reset le compteur pour nouveau deck
-          set({ shoe: newShoe });
+          set({ shoe: newShoe, bank });
           return;
         }
         
@@ -290,11 +282,13 @@ export const useGame = create<GameState>()(
                   const totalGains = delta + sideBetGains;
                   console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
                   
-                  // CORRECTION : La mise est déjà déduite du solde, donc on ajoute seulement le delta
-                  // Si delta > 0 : gain (on récupère la mise + gain)
-                  // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
-                  // Si delta = 0 : égalité (on récupère la mise)
-                  const bank = Math.max(0, finalSt.bank + totalGains);
+                  // CORRECTION : payoutOne retourne maintenant le GAIN NET
+                  // Si delta > 0 : gain net (inclut déjà le remboursement de la mise)
+                  // Si delta < 0 : perte nette (mise déjà perdue)
+                  // Si delta = 0 : égalité (pas de gain, pas de perte)
+                  // CORRECTION : Ajouter aussi le remboursement des side bets
+                  const totalWithSideBets = totalGains + finalSt.sideBetAmount;
+                  const bank = Math.max(0, finalSt.bank + totalWithSideBets);
                   localStorage.setItem(LS_KEY, String(bank));
                   if (delta>0) { 
                     SFX.win(); 
@@ -312,7 +306,7 @@ export const useGame = create<GameState>()(
                     set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
                     setTimeout(() => set({ message: undefined }), 3000);
                   }
-                  set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
+                  set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0, sideBetAmount: 0 });
                   if (finalSt.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
                 }
               }, 2000);
@@ -454,7 +448,7 @@ export const useGame = create<GameState>()(
                   const totalGains = delta + sideBetGains;
                   console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
                   
-                  // CORRECTION : La mise est déjà déduite du solde, donc on ajoute seulement le delta
+                  // CORRECTION : L'argent a été retiré au moment du deal, donc on rembourse la mise + gains
                   // Si delta > 0 : gain (on récupère la mise + gain)
                   // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
                   // Si delta = 0 : égalité (on récupère la mise)
@@ -498,7 +492,7 @@ export const useGame = create<GameState>()(
         h.bet *= 2; 
         h.doubled = true;
         
-        // Retirer la mise supplémentaire de la banque
+        // CORRECTION : Retirer la mise supplémentaire de la banque maintenant
         const additionalBet = originalBet;
         const bank = st.bank - additionalBet;
         
@@ -539,13 +533,17 @@ export const useGame = create<GameState>()(
         const h = st.hands[st.active];
         if (h.cards.length !== 2 || h.cards[0].r !== h.cards[1].r) return;
         if (st.bank < h.bet) return;
+        
+        // CORRECTION : Retirer l'argent de la banque maintenant
+        const bank = st.bank - h.bet;
+        localStorage.setItem(LS_KEY, String(bank));
+        
         const shoe = st.shoe.slice();
         const h1: Hand = { id: crypto.randomUUID(), cards: [h.cards[0], shoe.shift()!], bet: h.bet };
         const h2: Hand = { id: crypto.randomUUID(), cards: [h.cards[1], shoe.shift()!], bet: h.bet };
         const hands = st.hands.slice();
         hands.splice(st.active, 1, h1, h2);
-        const bank = st.bank - h.bet;
-        localStorage.setItem(LS_KEY, String(bank));
+        
         SFX.deal();
         set({ hands, shoe, bank });
       },
@@ -629,24 +627,33 @@ export const useGame = create<GameState>()(
               // CORRECTION : Rembourser la mise + ajouter le gain/perte
               const bank = Math.max(0, currentSt.bank + delta);
               localStorage.setItem(LS_KEY, String(bank));
+              
+              // CORRECTION : payoutOne retourne maintenant le GAIN NET
+              // Si delta > 0 : gain net (inclut déjà le remboursement de la mise)
+              // Si delta < 0 : perte nette (mise déjà perdue)
+              // Si delta = 0 : égalité (pas de gain, pas de perte)
+              // CORRECTION : Ajouter aussi le remboursement des side bets
+              const totalWithSideBets = delta + currentSt.sideBetAmount;
+              const finalBank = Math.max(0, currentSt.bank + totalWithSideBets);
+              localStorage.setItem(LS_KEY, String(finalBank));
               if (delta>0) { 
                 SFX.win(); 
-                set({ showWinAnimation: true, bank });
+                set({ showWinAnimation: true, bank: finalBank });
                 setTimeout(() => set({ showWinAnimation: false }), 2000);
                 set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
                 setTimeout(() => set({ message: undefined }), 4000);
               } else if (delta<0) { 
                 SFX.lose(); 
-                set({ bank });
+                set({ bank: finalBank });
                 // Animation supprimée
                 set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
                 setTimeout(() => set({ message: undefined }), 4000);
               } else {
-                set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
+                set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank: finalBank });
                 setTimeout(() => set({ message: undefined }), 3000);
               }
-              set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
-              if (currentSt.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
+              set({ bank: finalBank, phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0, sideBetAmount: 0 });
+              if (st.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
             }
           }, 2000);
         } else if (st.phase === "payout") {
@@ -669,6 +676,11 @@ export const useGame = create<GameState>()(
           // CORRECTION : Rembourser la mise + ajouter le gain/perte
           const bank = Math.max(0, st.bank + delta);
           localStorage.setItem(LS_KEY, String(bank));
+          
+          // CORRECTION : Ajouter aussi le remboursement des side bets
+          const totalWithSideBets = delta + st.sideBetAmount;
+          const finalBank = Math.max(0, st.bank + totalWithSideBets);
+          localStorage.setItem(LS_KEY, String(finalBank));
           if (delta>0) { 
             SFX.win(); 
             set({ showWinAnimation: true, bank });
@@ -685,7 +697,7 @@ export const useGame = create<GameState>()(
             set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
             setTimeout(() => set({ message: undefined }), 3000);
           }
-          set({ bank, phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
+          set({ bank: finalBank, phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0, sideBetAmount: 0 });
           if (st.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
         }
       },
@@ -696,16 +708,45 @@ export const useGame = create<GameState>()(
       // Ajouter à la mise side bet globale
       addSideBetAmount: (amount: number) => {
         const current = get();
+        
+        console.log("=== DEBUG SIDE BET ===");
+        console.log("Montant demandé:", amount, "€");
+        console.log("Side bet actuel:", current.sideBetAmount, "€");
+        console.log("Banque actuelle:", current.bank, "€");
+        
+        // CORRECTION : Vérifier que le joueur a assez d'argent pour la mise totale
+        if (amount > current.bank) {
+          console.log("❌ Pas assez d'argent pour miser", amount, "€");
+          return;
+        }
+        
+        // CORRECTION : Retirer l'argent de la banque immédiatement
+        const bank = current.bank - amount;
+        localStorage.setItem(LS_KEY, String(bank));
+        
+        // Mettre à jour le montant du side bet
         const newAmount = current.sideBetAmount + amount;
         
-        // Vérifier que le joueur a assez d'argent
-        if (newAmount > current.bank) return;
+        console.log("✅ Side bet ajouté:", amount, "€");
+        console.log("Nouveau total side bet:", newAmount, "€");
+        console.log("Nouvelle banque:", bank, "€");
+        console.log("=====================");
         
-        set({ sideBetAmount: newAmount });
+        set({ sideBetAmount: newAmount, bank });
       },
       
       // Effacer la mise side bet globale
-      clearSideBet: () => set({ sideBetAmount: 0 }),
+      clearSideBet: () => {
+        const current = get();
+        if (current.sideBetAmount > 0) {
+          // CORRECTION : Rembourser l'argent des side bets
+          const bank = current.bank + current.sideBetAmount;
+          localStorage.setItem(LS_KEY, String(bank));
+          set({ sideBetAmount: 0, bank });
+        } else {
+          set({ sideBetAmount: 0 });
+        }
+      },
       
       setSideBetResults: (results: SideBetResult[]) => set({ sideBetResults: results }),
       
