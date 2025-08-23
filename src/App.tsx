@@ -123,10 +123,22 @@ export default function App() {
 
         {/* Zone centrale - Règles et mise */}
         <div className="text-center mb-8">
-          {/* Affichage de la mise */}
+          {/* Affichage de la mise et bouton Rejouer */}
           {g.phase === "betting" && (
-            <div className="bg-gray-700 text-white px-6 py-3 rounded-lg font-bold text-xl mb-4 border-2 border-gray-500">
-              MISE : {g.betAmount}{CURRENCY}
+            <div className="space-y-4 mb-4">
+              <div className="bg-gray-700 text-white px-6 py-3 rounded-lg font-bold text-xl border-2 border-gray-500">
+                MISE : {g.betAmount}{CURRENCY}
+              </div>
+              
+              {/* Bouton Rejouer la mise précédente */}
+              {g.lastBetAmount > 0 && g.bank >= g.lastBetAmount && (
+                <button 
+                  onClick={g.rejouerMise}
+                  className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-3 rounded-xl font-bold text-lg shadow-xl border-2 border-blue-400 hover:scale-105 transition-all duration-200"
+                >
+                  🔄 Rejouer {g.lastBetAmount.toLocaleString('fr-FR')}{CURRENCY}
+                </button>
+              )}
             </div>
           )}
           
@@ -189,6 +201,49 @@ export default function App() {
               </div>
             </div>
           </div>
+          
+          {/* Boutons d'action du joueur - TRÈS HAUT ET TOUJOURS VISIBLES */}
+          {g.phase === "player" && currentHand && (
+            <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-2 border-blue-600/50 rounded-xl p-4 mb-6">
+              <div className="text-center text-blue-200 text-sm font-bold mb-3">🎮 ACTIONS DISPONIBLES</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 max-w-4xl mx-auto">
+                {!currentHand.doubled && currentHand.cards.length === 2 && g.bank >= currentHand.bet && (
+                  <button onClick={g.doubleDown} className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-purple-500 hover:to-purple-600 transition-all shadow-lg border-2 border-purple-400">
+                    <span className="text-lg">x2</span>
+                    <span className="hidden sm:inline">Doubler</span>
+                  </button>
+                )}
+                
+                {/* Bouton SPLIT - affiché seulement si on a une paire */}
+                {currentHand.cards.length === 2 && 
+                 currentHand.cards[0].r === currentHand.cards[1].r && 
+                 g.bank >= currentHand.bet && (
+                  <button onClick={g.split} className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-orange-500 hover:to-orange-600 transition-all shadow-lg border-2 border-orange-400">
+                    <span className="text-lg">✂️</span>
+                    <span className="hidden sm:inline">Diviser</span>
+                  </button>
+                )}
+                
+                {/* Bouton SURRENDER - seulement au début avec 2 cartes */}
+                {currentHand.cards.length === 2 && (
+                  <button onClick={g.surrender} className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-red-500 hover:to-red-600 transition-all shadow-lg border-2 border-red-400">
+                    <span className="text-lg">🏳️</span>
+                    <span className="hidden sm:inline">Abandonner</span>
+                  </button>
+                )}
+                
+                <button onClick={g.stand} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-blue-500 hover:to-blue-600 transition-all shadow-lg border-2 border-blue-400">
+                  <span className="text-lg">✋</span>
+                  <span className="hidden sm:inline">Rester</span>
+                </button>
+                
+                <button onClick={g.hit} className="bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-green-500 hover:to-green-600 transition-all shadow-lg border-2 border-green-400">
+                  <span className="text-lg">🎯</span>
+                  <span className="hidden sm:inline">Tirer</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Zone du joueur */}
@@ -240,48 +295,7 @@ export default function App() {
             })}
           </div>
           
-          {/* Boutons d'action du joueur - TOUJOURS VISIBLES */}
-          {g.phase === "player" && currentHand && (
-            <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-2 border-blue-600/50 rounded-xl p-4 mb-6">
-              <div className="text-center text-blue-200 text-sm font-bold mb-3">🎮 ACTIONS DISPONIBLES</div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 max-w-4xl mx-auto">
-                {!currentHand.doubled && currentHand.cards.length === 2 && g.bank >= currentHand.bet && (
-                  <button onClick={g.doubleDown} className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-purple-500 hover:to-purple-600 transition-all shadow-lg border-2 border-purple-400">
-                    <span className="text-lg">x2</span>
-                    <span className="hidden sm:inline">Doubler</span>
-                  </button>
-                )}
-                
-                {/* Bouton SPLIT - affiché seulement si on a une paire */}
-                {currentHand.cards.length === 2 && 
-                 currentHand.cards[0].r === currentHand.cards[1].r && 
-                 g.bank >= currentHand.bet && (
-                  <button onClick={g.split} className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-orange-500 hover:to-orange-600 transition-all shadow-lg border-2 border-orange-400">
-                    <span className="text-lg">✂️</span>
-                    <span className="hidden sm:inline">Diviser</span>
-                  </button>
-                )}
-                
-                {/* Bouton SURRENDER - seulement au début avec 2 cartes */}
-                {currentHand.cards.length === 2 && (
-                  <button onClick={g.surrender} className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-red-500 hover:to-red-600 transition-all shadow-lg border-2 border-red-400">
-                    <span className="text-lg">🏳️</span>
-                    <span className="hidden sm:inline">Abandonner</span>
-                  </button>
-                )}
-                
-                <button onClick={g.stand} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-blue-500 hover:to-blue-600 transition-all shadow-lg border-2 border-blue-400">
-                  <span className="text-lg">✋</span>
-                  <span className="hidden sm:inline">Rester</span>
-                </button>
-                
-                <button onClick={g.hit} className="bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-4 rounded-lg font-bold text-sm md:text-base flex items-center justify-center gap-1 hover:from-green-500 hover:to-green-600 transition-all shadow-lg border-2 border-green-400">
-                  <span className="text-lg">🎯</span>
-                  <span className="hidden sm:inline">Tirer</span>
-                </button>
-              </div>
-            </div>
-          )}
+
         </div>
 
         {/* Zone de contrôle - Bande de bois en bas */}
