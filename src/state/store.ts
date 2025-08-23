@@ -282,10 +282,10 @@ export const useGame = create<GameState>()(
                   const totalGains = delta + sideBetGains;
                   console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
                   
-                  // CORRECTION : L'argent a été retiré au moment du deal, donc on rembourse la mise + gains
-                  // Si delta > 0 : gain (on récupère la mise + gain)
-                  // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
-                  // Si delta = 0 : égalité (on récupère la mise)
+                  // CORRECTION : payoutOne retourne maintenant le GAIN NET
+                  // Si delta > 0 : gain net (inclut déjà le remboursement de la mise)
+                  // Si delta < 0 : perte nette (mise déjà perdue)
+                  // Si delta = 0 : égalité (pas de gain, pas de perte)
                   // CORRECTION : Ajouter aussi le remboursement des side bets
                   const totalWithSideBets = totalGains + finalSt.sideBetAmount;
                   const bank = Math.max(0, finalSt.bank + totalWithSideBets);
@@ -628,6 +628,10 @@ export const useGame = create<GameState>()(
               const bank = Math.max(0, currentSt.bank + delta);
               localStorage.setItem(LS_KEY, String(bank));
               
+              // CORRECTION : payoutOne retourne maintenant le GAIN NET
+              // Si delta > 0 : gain net (inclut déjà le remboursement de la mise)
+              // Si delta < 0 : perte nette (mise déjà perdue)
+              // Si delta = 0 : égalité (pas de gain, pas de perte)
               // CORRECTION : Ajouter aussi le remboursement des side bets
               const totalWithSideBets = delta + currentSt.sideBetAmount;
               const finalBank = Math.max(0, currentSt.bank + totalWithSideBets);
