@@ -96,9 +96,12 @@ export default function App() {
               SOLDE: {g.bank}{CURRENCY}
             </div>
             
-            {/* Sabot de cartes en haut à droite */}
-            <div className="bg-black rounded-lg w-16 h-20 flex items-center justify-center border-2 border-gray-600">
-              <div className="w-12 h-16 bg-blue-600 rounded border-2 border-blue-400"></div>
+            {/* Sabot de cartes en haut à droite - AMÉLIORÉ */}
+            <div className="bg-black rounded-lg w-16 h-20 flex items-center justify-center border-2 border-gray-600 shadow-lg">
+              <div className="w-12 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded border-2 border-blue-300 flex items-center justify-center">
+                <div className="text-white text-xs font-bold">🎴</div>
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded border border-blue-200 transform rotate-12"></div>
             </div>
           </div>
           
@@ -109,36 +112,31 @@ export default function App() {
             ))}
           </div>
           
-          {/* Score du croupier */}
+          {/* Score du croupier - LOGIQUE SIMPLIFIÉE */}
           {g.dealer.length > 0 && (
             <div className="flex justify-center">
               <div className="bg-white text-black px-4 py-2 rounded-lg font-bold text-xl border-2 border-red-500">
-                {dealerFaceDown && dealerScore ? 
-                  dealerScore.total - (dealerScore.aces > 0 ? 10 : 0) : 
-                  dealerScore?.total || 0}
+                {dealerFaceDown ? 
+                  // Si la deuxième carte est cachée, afficher seulement la première carte
+                  handScore([g.dealer[0]]).total : 
+                  // Sinon afficher le score total
+                  (dealerScore?.total || 0)}
               </div>
             </div>
           )}
         </div>
 
-        {/* Zone centrale - Mise et bouton Rejouer - OPTIMISÉE */}
+        {/* Zone centrale - Bouton Rejouer et mise actuelle - OPTIMISÉE */}
         <div className="text-center mb-4">
-          {/* Affichage de la mise et bouton Rejouer - COMPRESSÉ */}
-          {g.phase === "betting" && (
-            <div className="space-y-2 mb-3">
-              <div className="bg-gray-700 text-white px-4 py-2 rounded-lg font-bold text-lg border-2 border-gray-500">
-                MISE : {g.betAmount}{CURRENCY}
-              </div>
-              
-              {/* Bouton Rejouer la mise précédente - PLUS PETIT */}
-              {g.lastBetAmount > 0 && g.bank >= g.lastBetAmount && (
-                <button 
-                  onClick={g.rejouerMise}
-                  className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-2 rounded-lg font-bold text-base shadow-lg border-2 border-blue-400 hover:scale-105 transition-all duration-200"
-                >
-                  🔄 Rejouer {g.lastBetAmount.toLocaleString('fr-FR')}{CURRENCY}
-                </button>
-              )}
+          {/* Bouton Rejouer la mise précédente - COMPRESSÉ */}
+          {g.phase === "betting" && g.lastBetAmount > 0 && g.bank >= g.lastBetAmount && (
+            <div className="text-center mb-3">
+              <button 
+                onClick={g.rejouerMise}
+                className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-2 rounded-lg font-bold text-base shadow-lg border-2 border-blue-400 hover:scale-105 transition-all duration-200"
+              >
+                🔄 Rejouer {g.lastBetAmount.toLocaleString('fr-FR')}{CURRENCY}
+              </button>
             </div>
           )}
           
