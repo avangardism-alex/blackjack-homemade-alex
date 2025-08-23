@@ -67,7 +67,7 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
             onClick={() => onAdd(v)} 
             className={`rounded-full w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 ${getChipColor(v)} font-bold chip-glow border-4 hover:scale-110 transition-all duration-200 shadow-xl`}
           >
-            <div className="text-lg sm:text-xl md:text-2xl font-bold">${v}</div>
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{v}€</div>
           </button>
         ))}
       </div>
@@ -124,7 +124,7 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
               onClick={() => onAddSideBet(v)} 
               className={`rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${getChipColor(v)} font-bold chip-glow border-2 hover:scale-110 transition-all duration-200 text-sm sm:text-base`}
             >
-              ${v}
+              {v}€
             </button>
           ))}
         </div>

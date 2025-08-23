@@ -126,7 +126,7 @@ export default function App() {
           {/* Affichage de la mise */}
           {g.phase === "betting" && (
             <div className="bg-gray-700 text-white px-6 py-3 rounded-lg font-bold text-xl mb-4 border-2 border-gray-500">
-              MISE : ${g.betAmount}
+              MISE : {g.betAmount}{CURRENCY}
             </div>
           )}
           
