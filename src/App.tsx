@@ -389,8 +389,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Bouton d'emprunt quand solde = 0 ET en phase betting */}
-      {g.bank === 0 && g.phase === "betting" && (
+      {/* Bouton d'emprunt quand solde = 0 ET en phase betting ET pas de partie en cours */}
+      {g.bank === 0 && g.phase === "betting" && g.hands.length === 0 && g.betAmount === 0 && (
         <div className="fixed inset-0 flex items-center justify-center z-40">
           <div className="bg-black/20 backdrop-blur-sm absolute inset-0"></div>
           <div className="relative z-50">
