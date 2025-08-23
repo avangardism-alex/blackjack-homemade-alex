@@ -2,118 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { 
-  color-scheme: dark; 
+/* Variables CSS personnalisées */
+:root {
+  --felt-green: #0f5132;
+  --felt-dark: #0a3d24;
+  --wood-light: #d97706;
+  --wood-dark: #92400e;
 }
 
+/* Styles personnalisés */
 .bg-felt {
-  background: linear-gradient(135deg, #0d4a0d 0%, #0a3a0a 25%, #0d4a0d 50%, #0a3a0a 75%, #0d4a0d 100%);
-  background-size: 200px 200px;
-  position: relative;
-  transform: perspective(1000px) rotateX(5deg);
-  box-shadow: 
-    0 20px 40px rgba(0,0,0,0.4),
-    inset 0 0 50px rgba(0,0,0,0.2);
-}
-
-.bg-felt::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  background: linear-gradient(135deg, var(--felt-green) 0%, var(--felt-dark) 100%);
   background-image: 
-    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.02) 50%, transparent 60%);
-  background-size: 50px 50px, 50px 50px, 100px 100px;
-  pointer-events: none;
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%);
 }
 
-/* Amélioration des cartes */
-.card-shadow {
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.3),
-    0 8px 16px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+/* Animations personnalisées */
+@keyframes chip-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(255,255,255,0.3); }
+  50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
 }
 
 .chip-glow {
-  transition: all 0.3s ease;
-  background: radial-gradient(circle at 30% 30%, #fff, #ddd);
-  box-shadow: 
-    0 4px 8px rgba(0,0,0,0.3),
-    inset 0 1px 0 rgba(255,255,255,0.8);
-  border: 2px solid #999;
+  animation: chip-glow 2s ease-in-out infinite;
 }
 
-.chip-glow:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 
-    0 12px 24px rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(255, 255, 255, 0.2),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-}
-
-/* Animation de victoire améliorée */
-@keyframes winPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.win-animation {
-  animation: winPulse 0.6s ease-in-out infinite;
-}
-
-/* Effet de profondeur pour les boutons */
+/* Boutons 3D */
 .button-3d {
-  transition: all 0.2s ease;
   transform: translateY(0);
+  transition: all 0.2s ease;
 }
 
 .button-3d:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
 .button-3d:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes confetti {
-  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+/* Cartes avec effet de profondeur */
+.card-depth {
+  box-shadow: 
+    0 4px 8px rgba(0,0,0,0.1),
+    0 2px 4px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
 }
 
-@keyframes ripple {
-  0% { transform: scale(0); opacity: 1; }
-  100% { transform: scale(4); opacity: 0; }
+.card-depth:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 8px 25px rgba(0,0,0,0.15),
+    0 4px 8px rgba(0,0,0,0.1);
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+/* Jetons avec effet métallique */
+.chip-metallic {
+  background: linear-gradient(145deg, 
+    rgba(255,255,255,0.1) 0%, 
+    rgba(0,0,0,0.1) 100%);
+  border: 2px solid rgba(255,255,255,0.2);
 }
 
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: gold;
-  border-radius: 50%;
-  pointer-events: none;
-  animation: confetti 3s linear infinite;
+/* Responsive design amélioré */
+@media (max-width: 640px) {
+  .bg-felt {
+    background-size: 200% 200%;
+  }
 }
 
-.ripple-effect {
-  position: absolute;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-radius: 50%;
-  animation: ripple 1s ease-out;
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.floating {
-  animation: float 3s ease-in-out infinite;
+::-webkit-scrollbar-track {
+  background: var(--felt-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--wood-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--wood-dark);
 }

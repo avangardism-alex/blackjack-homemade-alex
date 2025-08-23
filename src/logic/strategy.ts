@@ -13,7 +13,7 @@ export interface Hand {
 export type Action = 'hit' | 'stand' | 'double' | 'split' | 'surrender';
 
 // Fonction pour calculer le score d'une main
-export function calculateHandScore(cards: Card[]): { total: number; isSoft: boolean; isPair: boolean } {
+export function calculateHandScore(cards: Card[]): { total: number; isSoft: boolean; isPair: boolean; softTotal?: number } {
   let total = 0;
   let aces = 0;
   
@@ -38,7 +38,13 @@ export function calculateHandScore(cards: Card[]): { total: number; isSoft: bool
   const isSoft = aces > 0 && total <= 21;
   const isPair = cards.length === 2 && cards[0].r === cards[1].r;
   
-  return { total, isSoft, isPair };
+  // Calculer le total "soft" (avec As compté comme 1)
+  let softTotal = total;
+  if (aces > 0) {
+    softTotal = total - (aces * 10); // Convertir tous les As en 1
+  }
+  
+  return { total, isSoft, isPair, softTotal };
 }
 
 // Fonction pour obtenir la valeur numérique d'une carte

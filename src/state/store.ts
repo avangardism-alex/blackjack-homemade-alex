@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { buildDeck, shuffle, type Card, type Hand, dealerPlay, payoutOne, handScore } from "../logic/game";
+import { buildDeck, shuffle, type Card, type Hand, dealerPlay, payoutOne, handScore, verifyGameFairness } from "../logic/game";
 import { CardCounter } from "../logic/cardCounter";
 import { START_BANK } from "../config";
 import { SFX } from "../sfx";
@@ -119,7 +119,14 @@ export const useGame = create<State & Actions>((set, get) => ({
     console.log("=== DEBUG REJOUER ===");
     console.log("lastBetAmount:", st.lastBetAmount);
     console.log("bank:", st.bank);
+    console.log("betAmount actuel:", st.betAmount);
     console.log("Condition:", st.lastBetAmount > 0 && st.bank >= st.lastBetAmount);
+    
+    // CORRECTION : Empêcher de rejouer si une mise est déjà en cours
+    if (st.betAmount > 0) {
+      console.log("Impossible de rejouer : mise déjà en cours");
+      return;
+    }
     
     if (st.lastBetAmount > 0 && st.bank >= st.lastBetAmount) {
       SFX.chip();
@@ -139,6 +146,7 @@ export const useGame = create<State & Actions>((set, get) => ({
     
     // Vérifier si on doit reshuffler
     if (st.shoe.length < 20) {
+      console.log("🔄 Reshuffle automatique - moins de 20 cartes restantes");
       const newShoe = shuffle(buildDeck(1));
       st.cardCounter.reset(); // Reset le compteur pour nouveau deck
       set({ shoe: newShoe });
@@ -150,6 +158,20 @@ export const useGame = create<State & Actions>((set, get) => ({
     const playerCard2 = shoe.shift()!;
     const dealerCard1 = shoe.shift()!;
     const dealerCard2 = shoe.shift()!;
+    
+    // 🔍 VÉRIFICATION DE TRANSPARENCE - Logs détaillés
+    console.log("🎯 DISTRIBUTION DES CARTES:");
+    console.log(`👤 Joueur: ${playerCard1.r}${playerCard1.s} + ${playerCard2.r}${playerCard2.s}`);
+    console.log(`🎰 Croupier: ${dealerCard1.r}${dealerCard1.s} + ${dealerCard2.r}${dealerCard2.s} (cachée)`);
+    console.log(`📊 Cartes restantes dans le shoe: ${shoe.length}`);
+    
+    // Vérifier l'équité après distribution
+    const fairness = verifyGameFairness(shoe);
+    if (!fairness.isFair) {
+      console.warn("⚠️ PROBLÈME D'ÉQUITÉ DÉTECTÉ:", fairness.warnings);
+    } else {
+      console.log("✅ Distribution équitable confirmée");
+    }
     
     // Mettre à jour le compteur
     st.cardCounter.updateCount(playerCard1);
@@ -290,10 +312,21 @@ export const useGame = create<State & Actions>((set, get) => ({
     hands[st.active].cards.push(newCard);
     SFX.deal();
     set({ hands, shoe });
+    
+    // Vérifier le score après avoir tiré
     const sc = handScore(hands[st.active].cards);
-    if (sc.isBust) { 
-      SFX.bust(); 
-      get().stand(); 
+    
+    // CORRECTION : Gestion intelligente des mains soft
+    if (sc.isBust) {
+      // Si on dépasse 21, vérifier s'il y a une valeur soft valide
+      if (sc.softTotal && sc.softTotal <= 21) {
+        // On a une valeur soft valide, on continue
+        console.log(`🎯 Main soft : ${sc.total} → ${sc.softTotal} (As converti en 1)`);
+      } else {
+        // Vraiment bust, fin de la main
+        SFX.bust(); 
+        get().stand(); 
+      }
     }
   },
 
@@ -301,6 +334,18 @@ export const useGame = create<State & Actions>((set, get) => ({
     const st = get();
     if (st.phase !== "player") return;
     const hands = st.hands.slice();
+    
+    // CORRECTION : Marquer la main comme terminée avec le bon score
+    const currentHand = hands[st.active];
+    const score = handScore(currentHand.cards);
+    
+    // Si on a une main soft et qu'on dépasse 21, utiliser la valeur soft
+    if (score.isBust && score.softTotal && score.softTotal <= 21) {
+      console.log(`🎯 Main soft convertie : ${score.total} → ${score.softTotal}`);
+      // La main n'est pas vraiment bust, on peut continuer
+      return;
+    }
+    
     hands[st.active].done = true;
     const next = hands.findIndex((h, i) => !h.done && i > st.active);
     if (next !== -1) set({ hands, active: next });
@@ -415,15 +460,46 @@ export const useGame = create<State & Actions>((set, get) => ({
     if (st.phase !== "player") return;
     const h = st.hands[st.active];
     if (st.bank < h.bet) return;
-    h.bet *= 2; h.doubled = true;
-    const shoe = st.shoe.slice();
-    h.cards.push(shoe.shift()!);
-    const bank = st.bank - h.bet / 2;
+    
+    // Sauvegarder la mise originale
+    const originalBet = h.bet;
+    
+    // Doubler la mise
+    h.bet *= 2; 
+    h.doubled = true;
+    
+    // Retirer la mise supplémentaire de la banque
+    const additionalBet = originalBet;
+    const bank = st.bank - additionalBet;
+    
+    // Mettre à jour la banque
     localStorage.setItem(LS_KEY, String(bank));
+    
+    // Tirer une carte
+    const shoe = st.shoe.slice();
+    const newCard = shoe.shift()!;
+    h.cards.push(newCard);
+    
+    // Mettre à jour le compteur de cartes
+    st.cardCounter.updateCount(newCard);
+    
+    // Mettre à jour l'état
     const hands = st.hands.slice();
     hands[st.active] = h;
+    
+    // Message de confirmation
+    set({ 
+      hands, 
+      shoe, 
+      bank,
+      message: `⚡ DOUBLE DOWN ! Mise doublée à ${h.bet}€` 
+    });
+    
+    // Effacer le message après 3 secondes
+    setTimeout(() => set({ message: undefined }), 3000);
+    
+    // Jouer le son et passer au croupier
     SFX.deal();
-    set({ hands, shoe, bank });
     get().stand();
   },
 
