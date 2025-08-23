@@ -7,7 +7,7 @@ export class SideBetEvaluator {
   
   // Évaluer tous les side bets actifs selon la phase du jeu
   static evaluateSideBets(
-    sideBets: Record<string, number>,
+    sideBetAmount: number, // Une seule mise pour tous les side bets
     tableRules: TableRules,
     playerCards: Card[],
     dealerCards: Card[],
@@ -15,26 +15,22 @@ export class SideBetEvaluator {
   ): SideBetResult[] {
     const results: SideBetResult[] = [];
     
-    // Parcourir tous les side bets actifs
-    for (const [betCode, amount] of Object.entries(sideBets)) {
-      if (amount <= 0) continue;
-      
-      // Trouver la règle correspondante
-      const rule = tableRules.sideBets.find(r => r.code === betCode);
-      if (!rule) continue;
-      
+    if (sideBetAmount <= 0) return results;
+    
+    // Parcourir tous les side bets disponibles
+    for (const rule of tableRules.sideBets) {
       // Vérifier si c'est le bon moment pour évaluer
       if (this.shouldEvaluateNow(rule, phase)) {
-        const evaluation = evaluateSideBet(betCode, playerCards, dealerCards, rule);
+        const evaluation = evaluateSideBet(rule.code, playerCards, dealerCards, rule);
         
         if (evaluation.isWin && evaluation.result) {
-          // Calculer le payout
-          const payout = amount * evaluation.result.multiplier;
+          // Calculer le payout avec la mise globale
+          const payout = sideBetAmount * evaluation.result.multiplier;
           
           // Créer le résultat final
           const result: SideBetResult = {
             ...evaluation.result,
-            amount,
+            amount: sideBetAmount,
             payout
           };
           
@@ -81,26 +77,18 @@ export class SideBetEvaluator {
   }
   
   // Calculer le total des side bets actifs
-  static getTotalSideBets(sideBets: Record<string, number>): number {
-    return Object.values(sideBets).reduce((sum, amount) => sum + amount, 0);
+  static getTotalSideBets(sideBetAmount: number): number {
+    return sideBetAmount;
   }
   
   // Vérifier si un joueur peut placer un side bet
   static canPlaceSideBet(
-    betCode: string,
     amount: number,
-    currentSideBets: Record<string, number>,
+    currentSideBetAmount: number,
     tableRules: TableRules,
     bank: number
   ): boolean {
-    const rule = tableRules.sideBets.find(r => r.code === betCode);
-    if (!rule) return false;
-    
-    const currentAmount = currentSideBets[betCode] || 0;
-    const newAmount = currentAmount + amount;
-    
-    // Vérifier les limites
-    if (newAmount < rule.min || newAmount > rule.max) return false;
+    const newAmount = currentSideBetAmount + amount;
     
     // Vérifier que le joueur a assez d'argent
     if (newAmount > bank) return false;

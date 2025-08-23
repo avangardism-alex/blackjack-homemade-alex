@@ -58,18 +58,16 @@ export default function App() {
     setShowLoanModal(false);
   };
 
-  // Fonction pour gérer les side bets
-  const handleSideBetChange = (betCode: string, amount: number) => {
+  // Fonction pour gérer la mise side bet globale
+  const handleSideBetChange = (amount: number) => {
     if (amount === 0) {
-      // Effacer le side bet
-      g.clearSideBet(betCode);
+      // Effacer la mise side bet
+      g.clearSideBet();
     } else {
-      // Vérifier si on peut placer le side bet
-      if (SideBetEvaluator.canPlaceSideBet(betCode, amount, g.sideBets, g.tableRules, g.bank)) {
-        // Débiter l'argent du solde
-        g.addBank(-amount);
-        // Placer le side bet
-        g.placeSideBet(betCode, amount);
+      // Vérifier si on peut placer la mise side bet
+      if (SideBetEvaluator.canPlaceSideBet(amount, g.sideBetAmount, g.tableRules, g.bank)) {
+        // Ajouter à la mise side bet globale
+        g.addSideBetAmount(amount);
       }
     }
   };
@@ -91,7 +89,7 @@ export default function App() {
       
       // Évaluer les side bets selon la phase
       const results = SideBetEvaluator.evaluateSideBets(
-        g.sideBets,
+        g.sideBetAmount,
         g.tableRules,
         playerCards,
         dealerCards,
@@ -103,7 +101,7 @@ export default function App() {
         setShowSideBetResults(true);
       }
     }
-  }, [g.phase, g.hands, g.dealer, g.sideBets, g.tableRules]);
+  }, [g.phase, g.hands, g.dealer, g.sideBetAmount, g.tableRules]);
 
   return (
     <div className="min-h-screen bg-cover bg-center bg-no-repeat relative" style={{
@@ -133,14 +131,14 @@ export default function App() {
         <div className="container mx-auto px-4 py-8">
           {/* Side Bets - affiché seulement en phase betting */}
           {g.phase === "betting" && (
-            <SideBets
-              tableRules={g.tableRules}
-              onSideBetChange={handleSideBetChange}
-              currentSideBets={g.sideBets}
-              phase={g.phase}
-              dealerUpCard={g.dealer[0]}
-              canPlaceBets={g.bank > 0}
-            />
+                      <SideBets
+            tableRules={g.tableRules}
+            onSideBetChange={handleSideBetChange}
+            currentSideBetAmount={g.sideBetAmount}
+            phase={g.phase}
+            dealerUpCard={g.dealer[0]}
+            canPlaceBets={g.bank > 0}
+          />
           )}
 
           {/* Zone de jeu principale */}

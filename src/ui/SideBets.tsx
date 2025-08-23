@@ -4,8 +4,8 @@ import { CURRENCY } from "../config";
 
 interface SideBetsProps {
   tableRules: TableRules;
-  onSideBetChange: (betCode: string, amount: number) => void;
-  currentSideBets: Record<string, number>;
+  onSideBetChange: (amount: number) => void;
+  currentSideBetAmount: number;
   phase: string;
   dealerUpCard?: { r: string; s: string };
   canPlaceBets: boolean;
@@ -14,7 +14,7 @@ interface SideBetsProps {
 export default function SideBets({
   tableRules,
   onSideBetChange,
-  currentSideBets,
+  currentSideBetAmount,
   phase,
   dealerUpCard,
   canPlaceBets
@@ -48,10 +48,48 @@ export default function SideBets({
         🎰 SIDE BETS - {tableRules.name}
       </div>
       
+      {/* Mise Side Bet Globale */}
+      <div className="text-center mb-6">
+        <div className="text-purple-200 text-sm mb-2">MISE SIDE BET GLOBALE</div>
+        {currentSideBetAmount > 0 ? (
+          <div className="bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-full w-20 h-20 flex items-center justify-center font-bold text-lg mx-auto shadow-lg">
+            {formatAmount(currentSideBetAmount)}{CURRENCY}
+          </div>
+        ) : (
+          <div className="text-gray-400 text-sm">Aucune mise placée</div>
+        )}
+      </div>
+      
+      {/* Contrôles de mise globale */}
+      {canPlaceBets && (
+        <div className="text-center mb-6">
+          <div className="text-purple-200 text-sm mb-3">AJOUTER À LA MISE GLOBALE :</div>
+          <div className="flex justify-center gap-3 mb-3">
+            {[1, 5, 25, 100].map((amount) => (
+              <button
+                key={amount}
+                onClick={() => onSideBetChange(currentSideBetAmount + amount)}
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:scale-105 transition-all"
+              >
+                +{amount}
+              </button>
+            ))}
+          </div>
+          
+          {currentSideBetAmount > 0 && (
+            <button
+              onClick={() => onSideBetChange(0)}
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-6 py-2 rounded-lg font-bold hover:scale-105 transition-all"
+            >
+              🗑️ Effacer Mise Globale
+            </button>
+          )}
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {tableRules.sideBets.map((rule) => {
           const isAvailable = isBetAvailable(rule);
-          const currentAmount = currentSideBets[rule.code] || 0;
           const isExpanded = expandedBet === rule.code;
           
           return (
@@ -66,44 +104,6 @@ export default function SideBets({
                   {isExpanded ? "−" : "+"}
                 </button>
               </div>
-
-              {/* Montant actuel */}
-              {currentAmount > 0 && (
-                <div className="text-center mb-3">
-                  <div className="bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-sm mx-auto shadow-lg">
-                    {formatAmount(currentAmount)}{CURRENCY}
-                  </div>
-                  <div className="text-purple-200 text-xs mt-1">Mise actuelle</div>
-                </div>
-              )}
-
-              {/* Contrôles de mise */}
-              {isAvailable && (
-                <div className="space-y-2 mb-3">
-                  {/* Boutons de mise rapide */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {[1, 5, 25].map((amount) => (
-                      <button
-                        key={amount}
-                        onClick={() => onSideBetChange(rule.code, currentAmount + amount)}
-                        className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white px-2 py-1 rounded text-xs font-bold hover:scale-105 transition-all"
-                      >
-                        +{amount}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {/* Bouton effacer */}
-                  {currentAmount > 0 && (
-                    <button
-                      onClick={() => onSideBetChange(rule.code, 0)}
-                      className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-3 py-1 rounded text-xs font-bold hover:scale-105 transition-all"
-                    >
-                      🗑️ Effacer
-                    </button>
-                  )}
-                </div>
-              )}
 
               {/* Indicateur de disponibilité */}
               {!isAvailable && (
@@ -156,13 +156,14 @@ export default function SideBets({
         })}
       </div>
 
-      {/* Résumé des mises */}
-      {Object.keys(currentSideBets).length > 0 && (
+      {/* Résumé des side bets */}
+      {currentSideBetAmount > 0 && (
         <div className="mt-4 text-center">
           <div className="text-purple-200 text-sm font-bold mb-2">
-            TOTAL SIDE BETS: {formatAmount(
-              Object.values(currentSideBets).reduce((sum, amount) => sum + amount, 0)
-            )}{CURRENCY}
+            MISE SIDE BET GLOBALE: {formatAmount(currentSideBetAmount)}{CURRENCY}
+          </div>
+          <div className="text-purple-300 text-xs">
+            Cette mise s'applique à TOUS les side bets disponibles
           </div>
         </div>
       )}

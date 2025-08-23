@@ -26,7 +26,6 @@ interface GameState {
   
   // Side Bets
   tableRules: TableRules;
-  sideBets: Record<string, number>; // betCode -> amount
   sideBetResults: SideBetResult[];
   
   // Actions
@@ -36,7 +35,6 @@ interface GameState {
   tapis: () => void;
   clearBet: () => void;
   clearSideBetAmount: () => void;
-  addSideBet: (amt: number) => void;
   rejouerMise: () => void;
   deal: () => void;
   hit: () => void;
@@ -49,9 +47,8 @@ interface GameState {
   
   // Side Bet actions
   setTableRules: (rules: TableRules) => void;
-  placeSideBet: (betCode: string, amount: number) => void;
-  clearSideBet: (betCode: string) => void;
-  clearAllSideBets: () => void;
+  addSideBetAmount: (amount: number) => void;
+  clearSideBet: () => void;
   setSideBetResults: (results: SideBetResult[]) => void;
   clearSideBetResults: () => void;
 }
@@ -79,7 +76,6 @@ export const useGame = create<GameState>()(
       
       // Side Bets - initialisation
       tableRules: CLASSIC_TABLE,
-      sideBets: {},
       sideBetResults: [],
 
       addBank: (amt)=> set((st)=>{
@@ -127,10 +123,10 @@ export const useGame = create<GameState>()(
       clearBet: () => set({ betAmount: 0 }),
       clearSideBetAmount: () => set({ sideBetAmount: 0 }),
       
-      // Ajouter aux side bets
-      addSideBet: (amt) => set((st) => {
+      // Ajouter aux side bets (nouvelle logique)
+      addSideBetAmount: (amt) => set((st) => {
         SFX.chip();
-        const next = Math.min(Math.max(st.sideBetAmount + amt, TABLE_MIN), TABLE_MAX);
+        const next = st.sideBetAmount + amt;
         if (next > st.bank) return st;
         const bank = st.bank - amt;
         localStorage.setItem(LS_KEY, String(bank));
@@ -697,34 +693,19 @@ export const useGame = create<GameState>()(
       // Side Bet actions
       setTableRules: (rules: TableRules) => set({ tableRules: rules }),
       
-      placeSideBet: (betCode: string, amount: number) => {
+      // Ajouter à la mise side bet globale
+      addSideBetAmount: (amount: number) => {
         const current = get();
-        const currentAmount = current.sideBets[betCode] || 0;
-        const newAmount = currentAmount + amount;
+        const newAmount = current.sideBetAmount + amount;
         
-        // Vérifier les limites de la table
-        const betRule = current.tableRules.sideBets.find(b => b.code === betCode);
-        if (betRule && newAmount > betRule.max) {
-          console.warn(`Side bet ${betCode} dépasserait la limite de ${betRule.max}`);
-          return;
-        }
+        // Vérifier que le joueur a assez d'argent
+        if (newAmount > current.bank) return;
         
-        set({
-          sideBets: {
-            ...current.sideBets,
-            [betCode]: newAmount
-          }
-        });
+        set({ sideBetAmount: newAmount });
       },
       
-      clearSideBet: (betCode: string) => {
-        const current = get();
-        const newSideBets = { ...current.sideBets };
-        delete newSideBets[betCode];
-        set({ sideBets: newSideBets });
-      },
-      
-      clearAllSideBets: () => set({ sideBets: {} }),
+      // Effacer la mise side bet globale
+      clearSideBet: () => set({ sideBetAmount: 0 }),
       
       setSideBetResults: (results: SideBetResult[]) => set({ sideBetResults: results }),
       
