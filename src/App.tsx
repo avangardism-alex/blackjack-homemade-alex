@@ -385,15 +385,29 @@ export default function App() {
 
       {/* Bouton d'emprunt quand solde = 0 */}
       {g.bank === 0 && (
-        <div className="fixed bottom-4 left-4 z-40">
-          <button 
-            onClick={() => setShowLoanModal(true)}
-            className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-6 py-4 rounded-lg font-bold text-lg shadow-lg border-2 border-red-400 hover:scale-105 transition-all animate-pulse"
-          >
-            🏦 Emprunter de l'argent
-          </button>
+        <div className="fixed inset-0 flex items-center justify-center z-40">
+          <div className="bg-black/20 backdrop-blur-sm absolute inset-0"></div>
+          <div className="relative z-50">
+            <button 
+              onClick={() => setShowLoanModal(true)}
+              className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-6 rounded-2xl font-bold text-2xl shadow-2xl border-4 border-red-400 hover:scale-110 transition-all animate-pulse"
+            >
+              🏦 Emprunter de l'argent
+            </button>
+          </div>
         </div>
       )}
+
+      {/* DEBUG TEMPORAIRE - À SUPPRIMER */}
+      <div className="fixed top-20 left-4 bg-black/80 text-white p-2 rounded text-xs z-50">
+        DEBUG: g.bank = {g.bank} (type: {typeof g.bank})
+        <br />
+        g.bank === 0: {g.bank === 0 ? 'true' : 'false'}
+        <br />
+        g.bank === "0": {g.bank === "0" ? 'true' : 'false'}
+        <br />
+        g.bank == 0: {g.bank == 0 ? 'true' : 'false'}
+      </div>
     </div>
   );
 }
