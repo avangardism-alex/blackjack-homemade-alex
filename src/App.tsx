@@ -361,7 +361,7 @@ export default function App() {
           )}
           
           {/* Message quand ALL IN - Plus de jetons visibles */}
-          {g.phase === "betting" && g.betAmount >= g.bank && g.bank > 0 && (
+          {g.phase === "betting" && g.betAmount === g.bank && g.bank > 0 && (
             <div className="text-center mb-4">
               <div className="bg-gradient-to-r from-red-600 to-red-800 text-white px-6 py-3 rounded-lg font-bold text-lg border-2 border-red-400 shadow-lg">
                 🚀 ALL IN - Plus de jetons disponibles
