@@ -49,6 +49,7 @@ interface GameState {
   // Side Bet actions
   setTableRules: (rules: TableRules) => void;
   addSideBetAmount: (amount: number) => void;
+  setSideBetAmount: (amount: number) => void;
   setSideBetResults: (results: SideBetResult[]) => void;
   clearSideBetResults: () => void;
 }
@@ -129,6 +130,18 @@ export const useGame = create<GameState>()(
         const bank = st.bank - amt;
         localStorage.setItem(LS_KEY, String(bank));
         return { sideBetAmount: next, bank };
+      }),
+      
+      // Définir directement le montant des side bets
+      setSideBetAmount: (amount: number) => set((st) => {
+        SFX.chip();
+        // Calculer la différence pour mettre à jour la banque
+        const difference = amount - st.sideBetAmount;
+        if (difference > st.bank) return st; // Pas assez d'argent
+        
+        const bank = st.bank - difference;
+        localStorage.setItem(LS_KEY, String(bank));
+        return { sideBetAmount: amount, bank };
       }),
       
       // Effacer les side bets ET rembourser l'argent

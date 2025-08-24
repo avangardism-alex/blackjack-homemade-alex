@@ -62,8 +62,10 @@ export default function App() {
     if (amount === 0) {
       g.clearSideBet();
     } else {
-      if (SideBetEvaluator.canPlaceSideBet(amount, g.sideBetAmount, g.tableRules, g.bank)) {
-        g.addSideBetAmount(amount);
+      // Vérifier si on peut placer cette mise
+      if (SideBetEvaluator.canPlaceSideBet(amount, 0, g.tableRules, g.bank)) {
+        // Définir directement le nouveau montant (pas d'ajout)
+        g.setSideBetAmount(amount);
       }
     }
   };
