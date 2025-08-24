@@ -78,13 +78,23 @@ export default function SideBets({
           <div className="text-center">
             <div className="text-white text-xs sm:text-sm font-bold leading-tight">PERFECT<br/>PAIRS</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "PERFECT_PAIRS")!) && (
-              <button
-                onClick={addOneEuro}
-                disabled={!canPlaceBets}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
-              >
-                +
-              </button>
+              <div className="flex gap-1 justify-center mt-1">
+                <button
+                  onClick={addOneEuro}
+                  disabled={!canPlaceBets}
+                  className="bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
+                >
+                  +
+                </button>
+                {currentSideBetAmount > 0 && (
+                  <button
+                    onClick={removeOneEuro}
+                    className="bg-red-500 hover:bg-red-400 text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
+                  >
+                    -
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -94,13 +104,23 @@ export default function SideBets({
           <div className="text-center">
             <div className="text-white text-xs sm:text-sm font-bold leading-tight">21+3</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "TWENTY_ONE_PLUS_THREE")!) && (
-              <button
-                onClick={addOneEuro}
-                disabled={!canPlaceBets}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
-              >
-                +
-              </button>
+              <div className="flex gap-1 justify-center mt-1">
+                <button
+                  onClick={addOneEuro}
+                  disabled={!canPlaceBets}
+                  className="bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
+                >
+                  +
+                </button>
+                {currentSideBetAmount > 0 && (
+                  <button
+                    onClick={removeOneEuro}
+                    className="bg-red-500 hover:bg-red-400 text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
+                  >
+                    -
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -110,28 +130,26 @@ export default function SideBets({
           <div className="text-center">
             <div className="text-white text-xs sm:text-sm font-bold leading-tight">LUCKY<br/>LADIES</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "LUCKY_LADIES")!) && (
-              <button
-                onClick={addOneEuro}
-                disabled={!canPlaceBets}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
-              >
-                +
-              </button>
+              <div className="flex gap-1 justify-center mt-1">
+                <button
+                  onClick={addOneEuro}
+                  disabled={!canPlaceBets}
+                  className="bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
+                >
+                  +
+                </button>
+                {currentSideBetAmount > 0 && (
+                  <button
+                    onClick={removeOneEuro}
+                    className="bg-red-500 hover:bg-red-400 text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
+                  >
+                    -
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
-
-        {/* Bouton de réduction de mise */}
-        {currentSideBetAmount > 0 && (
-          <div className="absolute bottom-1 right-1">
-            <button
-              onClick={removeOneEuro}
-              className="bg-red-500 hover:bg-red-400 text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
-            >
-              -
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Contrôles de mise rapide */}
