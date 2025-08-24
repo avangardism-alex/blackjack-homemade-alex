@@ -5,6 +5,7 @@ import { CardCounter } from "../logic/cardCounter";
 import { START_BANK } from "../config";
 import { SFX } from "../sfx";
 import { SideBetResult } from "../logic/sideBets";
+import { SideBetEvaluator } from "../logic/sideBetEvaluator";
 import { CLASSIC_TABLE, TableRules } from "../config/sidebet.rules";
 
 // Interface unifiée pour le jeu avec side bets
@@ -286,16 +287,28 @@ export const useGame = create<GameState>()(
                     }
                   }
                   
-                  // CORRECTION : Rembourser la mise + ajouter le gain/perte + side bets
+                  // CORRECTION : Calculer le gain/perte total
                   const totalGains = delta + sideBetGains;
                   console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
                   
-                  // CORRECTION : La mise est déjà déduite du solde, donc on ajoute seulement le delta
+                  // CORRECTION : La mise est déjà déduite du solde
                   // Si delta > 0 : gain (on récupère la mise + gain)
-                  // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
+                  // Si delta < 0 : perte (on récupère rien, mise déjà perdue)  
                   // Si delta = 0 : égalité (on récupère la mise)
-                  const bank = Math.max(0, finalSt.bank + totalGains);
+                  let bank = finalSt.bank;
+                  
+                  // En cas d'égalité, rembourser la mise
+                  if (delta === 0) {
+                    const totalBet = finalSt.hands.reduce((sum, h) => sum + h.bet, 0);
+                    bank += totalBet;
+                    console.log("🤝 Égalité : remboursement de la mise", totalBet, "€");
+                  }
+                  
+                  // Ajouter les gains/pertes
+                  bank += totalGains;
+                  bank = Math.max(0, bank);
                   localStorage.setItem(LS_KEY, String(bank));
+                  
                   if (delta>0) { 
                     SFX.win(); 
                     set({ showWinAnimation: true, bank });
@@ -685,24 +698,13 @@ export const useGame = create<GameState>()(
             set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
             setTimeout(() => set({ message: undefined }), 3000);
           }
-          set({ bank, phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
+          set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
           if (st.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
         }
       },
 
       // Side Bet actions
       setTableRules: (rules: TableRules) => set({ tableRules: rules }),
-      
-      // Ajouter à la mise side bet globale
-      addSideBetAmount: (amount: number) => {
-        const current = get();
-        const newAmount = current.sideBetAmount + amount;
-        
-        // Vérifier que le joueur a assez d'argent
-        if (newAmount > current.bank) return;
-        
-        set({ sideBetAmount: newAmount });
-      },
       
       // Effacer la mise side bet globale
       clearSideBet: () => set({ sideBetAmount: 0 }),

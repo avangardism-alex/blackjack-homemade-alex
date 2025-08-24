@@ -129,18 +129,6 @@ export default function App() {
 
         {/* Contenu principal */}
         <div className="container mx-auto px-4 py-8">
-          {/* Side Bets - affiché seulement en phase betting */}
-          {g.phase === "betting" && (
-                      <SideBets
-            tableRules={g.tableRules}
-            onSideBetChange={handleSideBetChange}
-            currentSideBetAmount={g.sideBetAmount}
-            phase={g.phase}
-            dealerUpCard={g.dealer[0]}
-            canPlaceBets={g.bank > 0}
-          />
-          )}
-
           {/* Zone de jeu principale */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Colonne gauche - Cartes du joueur */}
@@ -170,7 +158,10 @@ export default function App() {
                     <div className="bg-white text-black px-6 py-3 rounded-lg font-bold text-2xl border-2 border-red-500 shadow-lg">
                       {g.phase !== "payout" && g.phase !== "dealer" ? 
                         handScore([g.dealer[0]]).total : 
-                        handScore(g.dealer).total}
+                        (() => {
+                          const dealerScore = handScore(g.dealer);
+                          return dealerScore.isBJ ? "BLACKJACK ✨" : dealerScore.total;
+                        })()}
                     </div>
                   </div>
                 )}
@@ -253,9 +244,13 @@ export default function App() {
                               ? 'bg-white text-black border-yellow-400' 
                               : 'bg-gray-700 text-white border-gray-500'
                           }`}>
-                            {score.total}
-                            {score.softTotal && score.softTotal !== score.total && (
-                              <span className="text-blue-600 ml-2">/ {score.softTotal}</span>
+                            {score.isBJ ? "BLACKJACK ✨" : (
+                              <>
+                                {score.total}
+                                {score.softTotal && score.softTotal !== score.total && (
+                                  <span className="text-blue-600 ml-2">/ {score.softTotal}</span>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>

@@ -159,12 +159,42 @@ export function payoutOne(player: Hand, dealer: Card[]): number {
     console.log(`🎯 Main soft utilisée pour le payout: ${ps.total} → ${playerTotal}`);
   }
   
-  if (player.surrendered) return -player.bet / 2;
-  if (ps.isBust && playerTotal > 21) return -player.bet; // Vraiment bust
-  if (ps.isBJ && !ds.isBJ) return Math.floor(player.bet * 1.5);
-  if (ds.isBJ && !ps.isBJ) return -player.bet;
-  if (ds.isBust) return player.bet;
-  if (playerTotal > ds.total) return player.bet;
-  if (playerTotal < ds.total) return -player.bet;
+  // CORRECTION : Logique casino standard
+  if (player.surrendered) {
+    // Surrender : perd la moitié de la mise
+    return -Math.floor(player.bet / 2);
+  }
+  
+  if (ps.isBust && playerTotal > 21) {
+    // Vraiment bust : perd toute la mise
+    return -player.bet;
+  }
+  
+  if (ps.isBJ && !ds.isBJ) {
+    // Blackjack du joueur : gagne 1.5x la mise
+    return Math.floor(player.bet * 1.5);
+  }
+  
+  if (ds.isBJ && !ps.isBJ) {
+    // Blackjack du croupier : perd toute la mise
+    return -player.bet;
+  }
+  
+  if (ds.isBust) {
+    // Croupier bust : gagne la mise (1:1)
+    return player.bet;
+  }
+  
+  if (playerTotal > ds.total) {
+    // Joueur gagne : gagne la mise (1:1)
+    return player.bet;
+  }
+  
+  if (playerTotal < ds.total) {
+    // Joueur perd : perd toute la mise
+    return -player.bet;
+  }
+  
+  // Égalité : remboursement de la mise (0 = pas de gain/perte)
   return 0;
 }
