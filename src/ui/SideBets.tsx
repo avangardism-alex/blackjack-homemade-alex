@@ -45,25 +45,25 @@ export default function SideBets({
       {/* Zone de mise globale - style jeton de casino */}
       {currentSideBetAmount > 0 && (
         <div className="absolute -top-2 -right-2 z-10">
-          <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-black rounded-full w-8 h-8 flex items-center justify-center font-bold text-xs border-2 border-yellow-300 shadow-lg">
+          <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-black rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center font-bold text-xs sm:text-sm border-2 border-yellow-300 shadow-lg">
             {formatAmount(currentSideBetAmount)}
           </div>
         </div>
       )}
 
-      {/* Table de side bets - style casino */}
-      <div className="bg-green-800 border-4 border-yellow-600 rounded-full p-3 w-32 h-32 relative">
+      {/* Table de side bets - style casino responsive */}
+      <div className="bg-green-800 border-4 border-yellow-600 rounded-full p-2 sm:p-3 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 relative">
         {/* Contour de la table */}
         <div className="absolute inset-0 border-2 border-white rounded-full"></div>
         
         {/* Section Perfect Pairs (haut gauche) */}
-        <div className="absolute top-1 left-1 w-12 h-12 bg-black/60 rounded-full border border-white/50 flex items-center justify-center">
+        <div className="absolute top-1 left-1 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-black/60 rounded-full border border-white/50 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-white text-xs font-bold leading-tight">PERFECT<br/>PAIRS</div>
+            <div className="text-white text-xs sm:text-sm font-bold leading-tight">PERFECT<br/>PAIRS</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "PERFECT_PAIRS")!) && (
               <button
                 onClick={() => onSideBetChange(currentSideBetAmount + 1)}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-all"
+                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
               >
                 +
               </button>
@@ -72,13 +72,13 @@ export default function SideBets({
         </div>
 
         {/* Section 21+3 (haut droite) */}
-        <div className="absolute top-1 right-1 w-12 h-12 bg-black/60 rounded-full border border-white/50 flex items-center justify-center">
+        <div className="absolute top-1 right-1 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-black/60 rounded-full border border-white/50 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-white text-xs font-bold leading-tight">21+3</div>
+            <div className="text-white text-xs sm:text-sm font-bold leading-tight">21+3</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "TWENTY_ONE_PLUS_THREE")!) && (
               <button
                 onClick={() => onSideBetChange(currentSideBetAmount + 1)}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-all"
+                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
               >
                 +
               </button>
@@ -87,13 +87,13 @@ export default function SideBets({
         </div>
 
         {/* Section Lucky Ladies (bas) */}
-        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-black/60 rounded-full border border-white/50 flex items-center justify-center">
+        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-black/60 rounded-full border border-white/50 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-white text-xs font-bold leading-tight">LUCKY<br/>LADIES</div>
+            <div className="text-white text-xs sm:text-sm font-bold leading-tight">LUCKY<br/>LADIES</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "LUCKY_LADIES")!) && (
               <button
                 onClick={() => onSideBetChange(currentSideBetAmount + 1)}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-all"
+                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
               >
                 +
               </button>
@@ -101,34 +101,44 @@ export default function SideBets({
           </div>
         </div>
 
-        {/* Contrôles de mise - style compact */}
-        {canPlaceBets && (
-          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 flex gap-1">
-            {[1, 5, 25].map((amount) => (
-              <button
-                key={amount}
-                onClick={() => onSideBetChange(currentSideBetAmount + amount)}
-                className="bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:scale-110 transition-all border border-yellow-300"
-              >
-                {amount}
-              </button>
-            ))}
-            {currentSideBetAmount > 0 && (
-              <button
-                onClick={() => onSideBetChange(0)}
-                className="bg-red-500 hover:bg-red-400 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:scale-110 transition-all border border-red-300"
-              >
-                ×
-              </button>
-            )}
+        {/* Bouton de réduction de mise */}
+        {currentSideBetAmount > 0 && (
+          <div className="absolute bottom-1 right-1">
+            <button
+              onClick={() => onSideBetChange(Math.max(0, currentSideBetAmount - 1))}
+              className="bg-red-500 hover:bg-red-400 text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
+            >
+              -
+            </button>
           </div>
         )}
-
-        {/* Titre de la table */}
-        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-white text-xs font-bold bg-black/80 px-2 py-1 rounded">
-          SIDE BETS
-        </div>
       </div>
+
+      {/* Contrôles de mise rapide */}
+      <div className="mt-3 flex flex-wrap gap-2 justify-center">
+        {[1, 5, 10, 25].map((value) => (
+          <button
+            key={value}
+            onClick={() => onSideBetChange(currentSideBetAmount + value)}
+            disabled={!canPlaceBets}
+            className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 disabled:opacity-50 text-black rounded-full w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold border-2 border-yellow-300 shadow-lg hover:scale-105 transition-transform disabled:cursor-not-allowed"
+          >
+            {value}
+          </button>
+        ))}
+      </div>
+
+      {/* Bouton effacer */}
+      {currentSideBetAmount > 0 && (
+        <div className="mt-2 text-center">
+          <button
+            onClick={() => onSideBetChange(0)}
+            className="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs font-bold hover:scale-105 transition-transform"
+          >
+            🗑️ Effacer
+          </button>
+        </div>
+      )}
     </div>
   );
 }
