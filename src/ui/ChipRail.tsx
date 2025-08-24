@@ -65,7 +65,7 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
           <button 
             key={v} 
             onClick={() => onAdd(v)} 
-            className={`rounded-full w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 ${getChipColor(v)} font-bold chip-glow border-4 hover:scale-110 transition-all duration-200 shadow-xl`}
+            className={`rounded-full w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 ${getChipColor(v)} font-bold chip-glow border-4 hover:scale-105 transition-transform duration-200 shadow-xl`}
           >
             <div className="text-lg sm:text-xl md:text-2xl font-bold">{v}€</div>
           </button>
@@ -76,7 +76,7 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
       {lastBetAmount > 0 && bank >= lastBetAmount && (
         <button
           onClick={handleRejouerClick}
-          className="px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold text-xl shadow-2xl border-2 border-blue-400 hover:scale-105 transition-all duration-200"
+          className="px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold text-xl shadow-2xl border-2 border-blue-400 hover:scale-105 transition-transform duration-200"
           disabled={isRejouerDisabled}
         >
           🔄 Rejouer {lastBetAmount.toLocaleString('fr-FR')}€
@@ -122,7 +122,7 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
             <button 
               key={v} 
               onClick={() => onAddSideBet(v)} 
-              className={`rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${getChipColor(v)} font-bold chip-glow border-2 hover:scale-110 transition-all duration-200 text-sm sm:text-base`}
+              className={`rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${getChipColor(v)} font-bold chip-glow border-2 hover:scale-105 transition-transform duration-200 text-sm sm:text-base`}
             >
               {v}€
             </button>
@@ -144,7 +144,7 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
         <div className="flex flex-col items-center gap-4 mt-8">
           <button
             onClick={handleTapisClick}
-            className={`px-8 py-4 rounded-xl font-bold text-xl shadow-2xl transition-all duration-200 border-4 ${
+            className={`px-8 py-4 rounded-xl font-bold text-xl shadow-2xl transition-transform duration-200 border-4 ${
               showTapisConfirm 
                 ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 border-yellow-400 text-white animate-pulse' 
                 : 'bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 border-red-400 text-white hover:scale-105'
