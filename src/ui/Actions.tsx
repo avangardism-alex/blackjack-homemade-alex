@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { getOptimalAction, getStrategyExplanation } from "../logic/strategy";
 
 interface ActionsProps {
   onHit: () => void;
@@ -13,6 +14,14 @@ interface ActionsProps {
   canInsurance: boolean;
   cardCounter?: { getTrueCount: () => number };
   isInsuranceMandatory: boolean;
+  currentHand?: {
+    cards: Array<{ r: string; s: string }>;
+    bet: number;
+    doubled?: boolean;
+    insured?: boolean;
+  };
+  dealerUpCard?: { r: string; s: string };
+  bank: number;
 }
 
 export default function Actions({
@@ -27,8 +36,62 @@ export default function Actions({
   canSurrender,
   canInsurance,
   cardCounter,
-  isInsuranceMandatory
+  isInsuranceMandatory,
+  currentHand,
+  dealerUpCard,
+  bank
 }: ActionsProps) {
+  const [showStrategy, setShowStrategy] = useState(false);
+  const [strategyAdvice, setStrategyAdvice] = useState("");
+
+  // Fonction pour obtenir le conseil stratégique
+  const getStrategyAdvice = () => {
+    if (!currentHand || !dealerUpCard) return "Pas de conseil disponible";
+    
+    const optimalAction = getOptimalAction(
+      currentHand,
+      dealerUpCard,
+      canDoubleDown,
+      canSplit,
+      canSurrender
+    );
+    
+    const explanation = getStrategyExplanation(currentHand, dealerUpCard, optimalAction);
+    return explanation;
+  };
+
+  // Fonction pour exécuter l'action optimale
+  const executeOptimalAction = () => {
+    if (!currentHand || !dealerUpCard) return;
+    
+    const optimalAction = getOptimalAction(
+      currentHand,
+      dealerUpCard,
+      canDoubleDown,
+      canSplit,
+      canSurrender
+    );
+    
+    // Exécuter l'action optimale
+    switch (optimalAction) {
+      case 'hit':
+        onHit();
+        break;
+      case 'stand':
+        onStand();
+        break;
+      case 'double':
+        if (canDoubleDown) onDoubleDown();
+        break;
+      case 'split':
+        if (canSplit) onSplit();
+        break;
+      case 'surrender':
+        if (canSurrender) onSurrender();
+        break;
+    }
+  };
+
   return (
     <div className="w-full max-w-md mx-auto">
       {/* Actions principales */}
@@ -112,6 +175,47 @@ export default function Actions({
           </button>
         </div>
       )}
+
+      {/* AUDIT STRATÉGIQUE - NOUVEAU */}
+      <div className="mb-3">
+        <button 
+          onClick={() => {
+            const advice = getStrategyAdvice();
+            setStrategyAdvice(advice);
+            setShowStrategy(!showStrategy);
+          }}
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-lg font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-105 transition-transform shadow-lg border-2 border-purple-400"
+        >
+          <span className="text-sm">🧮</span>
+          <span>AUDIT STRATÉGIQUE</span>
+        </button>
+        
+        {showStrategy && strategyAdvice && (
+          <div className="mt-3 bg-black/80 backdrop-blur p-3 rounded-lg border-2 border-purple-400">
+            <div className="text-purple-300 text-xs font-bold mb-2">📊 CONSEIL STRATÉGIQUE</div>
+            <div className="text-white text-sm font-bold mb-2 whitespace-pre-line">
+              {strategyAdvice}
+            </div>
+            <div className="text-gray-300 text-xs opacity-80">
+              Basé sur vos cartes et la carte du croupier
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bouton "FAIRE CONFIANCE AUX MATHS" */}
+      <div className="mb-3">
+        <button 
+          onClick={executeOptimalAction}
+          className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-4 py-3 rounded-lg font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-105 transition-transform shadow-lg border-2 border-green-400"
+        >
+          <span className="text-sm">🚀</span>
+          <span>FAIRE CONFIANCE AUX MATHS</span>
+        </button>
+        <div className="text-gray-300 text-xs text-center mt-1 opacity-80">
+          Exécute automatiquement l'action optimale
+        </div>
+      </div>
 
       {/* Conseils stratégiques */}
       {cardCounter && (

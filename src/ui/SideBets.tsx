@@ -40,6 +40,23 @@ export default function SideBets({
     return amount.toLocaleString('fr-FR');
   };
 
+  // Fonction pour ajouter 1€ aux side bets
+  const addOneEuro = () => {
+    onSideBetChange(currentSideBetAmount + 1);
+  };
+
+  // Fonction pour retirer 1€ des side bets
+  const removeOneEuro = () => {
+    if (currentSideBetAmount > 0) {
+      onSideBetChange(currentSideBetAmount - 1);
+    }
+  };
+
+  // Fonction pour effacer complètement les side bets
+  const clearAllSideBets = () => {
+    onSideBetChange(0);
+  };
+
   return (
     <div className="relative">
       {/* Zone de mise globale - style jeton de casino */}
@@ -62,8 +79,9 @@ export default function SideBets({
             <div className="text-white text-xs sm:text-sm font-bold leading-tight">PERFECT<br/>PAIRS</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "PERFECT_PAIRS")!) && (
               <button
-                onClick={() => onSideBetChange(currentSideBetAmount + 1)}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
+                onClick={addOneEuro}
+                disabled={!canPlaceBets}
+                className="mt-1 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
               >
                 +
               </button>
@@ -77,8 +95,9 @@ export default function SideBets({
             <div className="text-white text-xs sm:text-sm font-bold leading-tight">21+3</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "TWENTY_ONE_PLUS_THREE")!) && (
               <button
-                onClick={() => onSideBetChange(currentSideBetAmount + 1)}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
+                onClick={addOneEuro}
+                disabled={!canPlaceBets}
+                className="mt-1 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
               >
                 +
               </button>
@@ -92,8 +111,9 @@ export default function SideBets({
             <div className="text-white text-xs sm:text-sm font-bold leading-tight">LUCKY<br/>LADIES</div>
             {isBetAvailable(tableRules.sideBets.find(s => s.code === "LUCKY_LADIES")!) && (
               <button
-                onClick={() => onSideBetChange(currentSideBetAmount + 1)}
-                className="mt-1 bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
+                onClick={addOneEuro}
+                disabled={!canPlaceBets}
+                className="mt-1 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform disabled:cursor-not-allowed"
               >
                 +
               </button>
@@ -105,7 +125,7 @@ export default function SideBets({
         {currentSideBetAmount > 0 && (
           <div className="absolute bottom-1 right-1">
             <button
-              onClick={() => onSideBetChange(Math.max(0, currentSideBetAmount - 1))}
+              onClick={removeOneEuro}
               className="bg-red-500 hover:bg-red-400 text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
             >
               -
@@ -132,10 +152,10 @@ export default function SideBets({
       {currentSideBetAmount > 0 && (
         <div className="mt-2 text-center">
           <button
-            onClick={() => onSideBetChange(0)}
+            onClick={clearAllSideBets}
             className="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs font-bold hover:scale-105 transition-transform"
           >
-            🗑️ Effacer
+            🗑️ Effacer ({currentSideBetAmount}€)
           </button>
         </div>
       )}

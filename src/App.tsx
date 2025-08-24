@@ -272,6 +272,9 @@ export default function App() {
               canInsurance={g.dealer[0]?.r === "A" && !g.hands[g.active].insured}
               cardCounter={g.cardCounter}
               isInsuranceMandatory={false}
+              currentHand={g.hands[g.active]}
+              dealerUpCard={g.dealer[0]}
+              bank={g.bank}
             />
           )}
         </div>

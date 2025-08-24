@@ -35,7 +35,7 @@ interface GameState {
   addChip: (amt: number) => void;
   tapis: () => void;
   clearBet: () => void;
-  clearSideBetAmount: () => void;
+  clearSideBet: () => void;
   rejouerMise: () => void;
   deal: () => void;
   hit: () => void;
@@ -49,7 +49,6 @@ interface GameState {
   // Side Bet actions
   setTableRules: (rules: TableRules) => void;
   addSideBetAmount: (amount: number) => void;
-  clearSideBet: () => void;
   setSideBetResults: (results: SideBetResult[]) => void;
   clearSideBetResults: () => void;
 }
@@ -122,8 +121,6 @@ export const useGame = create<GameState>()(
       },
 
       clearBet: () => set({ betAmount: 0 }),
-      clearSideBetAmount: () => set({ sideBetAmount: 0 }),
-      
       // Ajouter aux side bets (nouvelle logique)
       addSideBetAmount: (amt) => set((st) => {
         SFX.chip();
@@ -132,6 +129,16 @@ export const useGame = create<GameState>()(
         const bank = st.bank - amt;
         localStorage.setItem(LS_KEY, String(bank));
         return { sideBetAmount: next, bank };
+      }),
+      
+      // Effacer les side bets ET rembourser l'argent
+      clearSideBet: () => set((st) => {
+        if (st.sideBetAmount > 0) {
+          const bank = st.bank + st.sideBetAmount;
+          localStorage.setItem(LS_KEY, String(bank));
+          return { sideBetAmount: 0, bank };
+        }
+        return st;
       }),
       
       // Rejouer la dernière mise
@@ -322,7 +329,10 @@ export const useGame = create<GameState>()(
                     set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
                     setTimeout(() => set({ message: undefined }), 4000);
                   } else {
-                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
+                    // Égalité : rembourser la mise initiale
+                    const bankWithRefund = currentSt.bank + finalSt.betAmount;
+                    localStorage.setItem(LS_KEY, String(bankWithRefund));
+                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank: bankWithRefund });
                     setTimeout(() => set({ message: undefined }), 3000);
                   }
                   set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
@@ -486,7 +496,10 @@ export const useGame = create<GameState>()(
                     set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
                     setTimeout(() => set({ message: undefined }), 4000);
                   } else {
-                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
+                    // Égalité : rembourser la mise initiale
+                    const bankWithRefund = finalSt.bank + finalSt.betAmount;
+                    localStorage.setItem(LS_KEY, String(bankWithRefund));
+                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank: bankWithRefund });
                     setTimeout(() => set({ message: undefined }), 3000);
                   }
                   set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
@@ -706,8 +719,7 @@ export const useGame = create<GameState>()(
       // Side Bet actions
       setTableRules: (rules: TableRules) => set({ tableRules: rules }),
       
-      // Effacer la mise side bet globale
-      clearSideBet: () => set({ sideBetAmount: 0 }),
+
       
       setSideBetResults: (results: SideBetResult[]) => set({ sideBetResults: results }),
       
