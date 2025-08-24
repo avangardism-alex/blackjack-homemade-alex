@@ -40,7 +40,7 @@ export default function FunFacts() {
   return (
     <>
       {showFact && (
-        <div className="fixed top-20 left-4 z-40 bg-slate-800/90 backdrop-blur p-3 rounded-lg border border-emerald-500/50 shadow-lg animate-pulse">
+        <div className="fixed top-20 left-4 z-40 bg-slate-800/90 backdrop-blur p-3 rounded-lg border border-emerald-500/50 shadow-lg">
           <div className="text-sm text-emerald-300 max-w-xs">
             {FUN_FACTS[currentFact]}
           </div>

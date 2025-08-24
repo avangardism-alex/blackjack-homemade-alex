@@ -70,7 +70,7 @@ export default function Actions({ phase, on, currentHand, dealerUpCard, bank, ca
           {dealerUpCard?.r === "A" && !currentHand.insured && (
             <>
               {isInsuranceMandatory && (
-                <div className="px-6 py-4 rounded-xl bg-red-600 text-white font-bold text-center border-2 border-red-400 animate-pulse text-xl">
+                <div className="px-6 py-4 rounded-xl bg-red-600 text-white font-bold text-center border-2 border-red-400 text-xl">
                   🚨 ASSURANCE OBLIGATOIRE ! Count: +{cardCounter.getTrueCount().toFixed(1)}
                 </div>
               )}
@@ -94,7 +94,7 @@ export default function Actions({ phase, on, currentHand, dealerUpCard, bank, ca
               {isInsuranceMandatory && (
                 <button
                   onClick={on.insurance}
-                  className="px-6 py-4 rounded-xl bg-red-700 hover:bg-red-600 text-white font-bold button-3d animate-pulse border-2 border-red-400 text-xl"
+                  className="px-6 py-4 rounded-xl bg-red-700 hover:bg-red-600 text-white font-bold button-3d border-2 border-red-400 text-xl"
                 >
                   🚨 FORCER L'ASSURANCE ! (S)
                 </button>

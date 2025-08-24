@@ -146,7 +146,7 @@ export default function ChipRail({ onAdd, bank, onTapis, onRejouer, lastBetAmoun
             onClick={handleTapisClick}
             className={`px-8 py-4 rounded-xl font-bold text-xl shadow-2xl transition-transform duration-200 border-4 ${
               showTapisConfirm 
-                ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 border-yellow-400 text-white animate-pulse' 
+                ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 border-yellow-400 text-white' 
                 : 'bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 border-red-400 text-white hover:scale-105'
             }`}
           >

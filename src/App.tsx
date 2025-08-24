@@ -172,7 +172,7 @@ export default function App() {
                 {/* Jeton de mise actuelle */}
                 {g.betAmount > 0 && (
                   <div className="text-center mb-4">
-                    <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-black rounded-full w-28 h-28 md:w-32 md:h-32 flex items-center justify-center font-bold text-xl md:text-2xl border-4 border-yellow-300 mx-auto shadow-xl animate-pulse">
+                    <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-black rounded-full w-28 h-28 md:w-32 md:h-32 flex items-center justify-center font-bold text-xl md:text-2xl border-4 border-yellow-300 mx-auto shadow-xl">
                       {g.betAmount.toLocaleString('fr-FR')}{CURRENCY}
                     </div>
                     <div className="text-yellow-200 text-sm mt-2 font-medium">MISE ACTUELLE</div>
@@ -183,15 +183,15 @@ export default function App() {
                 {g.message && (
                   <div className="text-center mb-4">
                     {g.message.includes("Victoire") || g.message.includes("WIN") ? (
-                      <div className="text-green-500 text-4xl md:text-5xl font-bold animate-pulse bg-green-900/20 px-8 py-4 rounded-2xl border-2 border-green-400 shadow-2xl">
+                      <div className="text-green-500 text-4xl md:text-5xl font-bold bg-green-900/20 px-8 py-4 rounded-2xl border-2 border-green-400 shadow-2xl">
                         🎉 WIN ✨
                       </div>
                     ) : g.message.includes("Perte") || g.message.includes("BUST") || g.message.includes("BUSTED") ? (
-                      <div className="text-green-500 text-4xl md:text-5xl font-bold animate-pulse bg-green-900/20 px-8 py-4 rounded-2xl border-2 border-green-400 shadow-2xl">
+                      <div className="text-green-500 text-4xl md:text-5xl font-bold bg-green-900/20 px-8 py-4 rounded-2xl border-2 border-green-400 shadow-2xl">
                         💔 BUSTED 🥹
                       </div>
                     ) : g.message.includes("Égalité") || g.message.includes("PUSH") ? (
-                      <div className="text-blue-500 text-4xl md:text-5xl font-bold animate-pulse bg-blue-900/20 px-8 py-4 rounded-2xl border-2 border-blue-400 shadow-2xl">
+                      <div className="text-blue-500 text-4xl md:text-5xl font-bold bg-blue-900/20 px-8 py-4 rounded-2xl border-2 border-blue-400 shadow-2xl">
                         🤝 PUSH!
                       </div>
                     ) : (
@@ -377,7 +377,7 @@ export default function App() {
             <div className="text-center mb-4">
               <button 
                 onClick={() => g.addChip(g.bank)}
-                className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-4 rounded-lg font-bold text-xl shadow-lg border-2 border-red-400 hover:scale-105 transition-all hover:shadow-xl animate-pulse"
+                className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-4 rounded-lg font-bold text-xl shadow-lg border-2 border-red-400 hover:scale-105 transition-all hover:shadow-xl"
               >
                 🚀 ALL IN - {g.bank.toLocaleString('fr-FR')}{CURRENCY}
               </button>
@@ -479,7 +479,7 @@ export default function App() {
             <div className="relative z-50">
               <button 
                 onClick={() => setShowLoanModal(true)}
-                className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-6 rounded-2xl font-bold text-2xl shadow-2xl border-4 border-red-400 hover:scale-110 transition-all animate-pulse"
+                className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-6 rounded-2xl font-bold text-2xl shadow-2xl border-4 border-red-400 hover:scale-110 transition-all"
               >
                 🏦 Emprunter à Gina Bank
               </button>
