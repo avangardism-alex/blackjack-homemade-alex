@@ -159,42 +159,46 @@ export function payoutOne(player: Hand, dealer: Card[]): number {
     console.log(`🎯 Main soft utilisée pour le payout: ${ps.total} → ${playerTotal}`);
   }
   
-  // CORRECTION : Logique casino standard
+  // CORRECTION : Logique casino standard - La mise est déjà déduite de la banque
+  // On retourne le gain/perte net (pas besoin de récupérer la mise)
   if (player.surrendered) {
     // Surrender : perd la moitié de la mise
     return -Math.floor(player.bet / 2);
   }
   
   if (ps.isBust && playerTotal > 21) {
-    // Vraiment bust : perd toute la mise
-    return -player.bet;
+    // Vraiment bust : perd toute la mise (déjà déduite)
+    return 0; // Pas de gain, mise déjà perdue
   }
   
   if (ps.isBJ && !ds.isBJ) {
     // Blackjack du joueur : gagne 1.5x la mise
+    // La mise est déjà déduite, on gagne 1.5x la mise
     return Math.floor(player.bet * 1.5);
   }
   
   if (ds.isBJ && !ps.isBJ) {
-    // Blackjack du croupier : perd toute la mise
-    return -player.bet;
+    // Blackjack du croupier : perd toute la mise (déjà déduite)
+    return 0; // Pas de gain, mise déjà perdue
   }
   
   if (ds.isBust) {
     // Croupier bust : gagne la mise (1:1)
+    // La mise est déjà déduite, on gagne la mise
     return player.bet;
   }
   
   if (playerTotal > ds.total) {
     // Joueur gagne : gagne la mise (1:1)
+    // La mise est déjà déduite, on gagne la mise
     return player.bet;
   }
   
   if (playerTotal < ds.total) {
-    // Joueur perd : perd toute la mise
-    return -player.bet;
+    // Joueur perd : perd toute la mise (déjà déduite)
+    return 0; // Pas de gain, mise déjà perdue
   }
   
   // Égalité : remboursement de la mise (0 = pas de gain/perte)
-  return 0;
+  return player.bet; // Rembourser la mise
 }

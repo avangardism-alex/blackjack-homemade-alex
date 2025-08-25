@@ -42,13 +42,15 @@ export default function SideBets({
 
   // Fonction pour ajouter 1€ aux side bets
   const addOneEuro = () => {
-    onSideBetChange(currentSideBetAmount + 1);
+    const newAmount = currentSideBetAmount + 1;
+    onSideBetChange(newAmount);
   };
 
   // Fonction pour retirer 1€ des side bets
   const removeOneEuro = () => {
     if (currentSideBetAmount > 0) {
-      onSideBetChange(currentSideBetAmount - 1);
+      const newAmount = currentSideBetAmount - 1;
+      onSideBetChange(newAmount);
     }
   };
 

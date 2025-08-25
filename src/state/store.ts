@@ -121,7 +121,15 @@ export const useGame = create<GameState>()(
         }, 500); // Délai de 500ms pour laisser le temps à l'interface de se mettre à jour
       },
 
-      clearBet: () => set({ betAmount: 0 }),
+      clearBet: () => set((st) => {
+        if (st.betAmount > 0) {
+          // Rembourser l'argent de la mise
+          const bank = st.bank + st.betAmount;
+          localStorage.setItem(LS_KEY, String(bank));
+          return { betAmount: 0, bank };
+        }
+        return st;
+      }),
       // Ajouter aux side bets (nouvelle logique)
       addSideBetAmount: (amt) => set((st) => {
         SFX.chip();
@@ -262,47 +270,31 @@ export const useGame = create<GameState>()(
                     }
                   });
                   
-                  // Calculer les gains des side bets
+                  // Calculer les gains des side bets avec SideBetEvaluator
                   let sideBetGains = 0;
                   if (finalSt.sideBetAmount > 0) {
                     const playerCards = finalSt.hands[0]?.cards || [];
-                    if (playerCards.length >= 2) {
-                      const card1 = playerCards[0];
-                      const card2 = playerCards[1];
+                    const dealerCards = finalSt.dealer;
+                    
+                    if (playerCards.length >= 2 && dealerCards.length >= 1) {
+                      const results = SideBetEvaluator.evaluateSideBets(
+                        finalSt.sideBetAmount,
+                        finalSt.tableRules,
+                        playerCards,
+                        dealerCards,
+                        finalSt.phase
+                      );
                       
-                      // Perfect Pairs
-                      if (card1.r === card2.r) {
-                        if (card1.s === card2.s) {
-                          // Paire parfaite (même carte) - 25:1
-                          sideBetGains += finalSt.sideBetAmount * 25;
-                          console.log("🎯 Paire parfaite ! +", finalSt.sideBetAmount * 25, "€");
-                        } else if (card1.s === "H" || card1.s === "D" || card2.s === "H" || card2.s === "D") {
-                          // Paire de couleur (rouge) - 10:1
-                          sideBetGains += finalSt.sideBetAmount * 10;
-                          console.log("🎨 Paire de couleur ! +", finalSt.sideBetAmount * 10, "€");
-                        } else {
-                          // Paire mixte - 5:1
-                          sideBetGains += finalSt.sideBetAmount * 5;
-                          console.log("🃏 Paire mixte ! +", finalSt.sideBetAmount * 5, "€");
-                        }
-                      }
+                      // Calculer le total des gains
+                      sideBetGains = results.reduce((total, result) => total + result.payout, 0);
                       
-                      // Pair Plus (vraie logique casino - toutes les combinaisons)
-                      if (playerCards.length >= 3) {
-                        const card3 = playerCards[2];
-                        const ranks = [card1.r, card2.r, card3.r];
-                        const suits = [card1.s, card2.s, card3.s];
-                        
-                        // Vérifier les combinaisons
-                        if (ranks[0] === ranks[1] && ranks[1] === ranks[2]) {
-                          // Brelan - 3:1
-                          sideBetGains += finalSt.sideBetAmount * 3;
-                          console.log("🎲 Brelan ! +", finalSt.sideBetAmount * 3, "€");
-                        } else if (ranks[0] === ranks[1] || ranks[1] === ranks[2] || ranks[0] === ranks[2]) {
-                          // Paire - 1:1
-                          sideBetGains += finalSt.sideBetAmount * 1;
-                          console.log("🃏 Paire ! +", finalSt.sideBetAmount * 1, "€");
-                        }
+                      if (sideBetGains > 0) {
+                        console.log("🎯 Side bets gagnants ! +", sideBetGains, "€");
+                        results.forEach(result => {
+                          if (result.payout > 0) {
+                            console.log(`  - ${result.betName}: +${result.payout}€`);
+                          }
+                        });
                       }
                     }
                   }
@@ -313,15 +305,14 @@ export const useGame = create<GameState>()(
                   
                   // CORRECTION : La mise est déjà déduite du solde
                   // Si delta > 0 : gain (on récupère la mise + gain)
-                  // Si delta < 0 : perte (on récupère rien, mise déjà perdue)  
-                  // Si delta = 0 : égalité (on récupère la mise)
+                  // Si delta = 0 : perte (on récupère rien, mise déjà perdue)  
+                  // Si delta = mise : égalité (on récupère la mise)
                   let bank = finalSt.bank;
                   
                   // En cas d'égalité, rembourser la mise
-                  if (delta === 0) {
-                    const totalBet = finalSt.hands.reduce((sum, h) => sum + h.bet, 0);
-                    bank += totalBet;
-                    console.log("🤝 Égalité : remboursement de la mise", totalBet, "€");
+                  if (delta > 0 && delta === finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) {
+                    // Égalité : delta = mise (remboursement)
+                    console.log("🤝 Égalité : remboursement de la mise", delta, "€");
                   }
                   
                   // Ajouter les gains/pertes
@@ -329,23 +320,29 @@ export const useGame = create<GameState>()(
                   bank = Math.max(0, bank);
                   localStorage.setItem(LS_KEY, String(bank));
                   
-                  if (delta>0) { 
+                  if (delta > 0 && delta !== finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) { 
+                    // Gain net (pas d'égalité)
                     SFX.win(); 
                     set({ showWinAnimation: true, bank });
                     setTimeout(() => set({ showWinAnimation: false }), 2000);
-                    set({ message: `🎉 BLACKJACK ! Gain net : +${delta}€ !` });
+                    
+                    // Vérifier si c'est un Blackjack
+                    const isBlackjack = finalSt.hands.some(h => handScore(h.cards).isBJ);
+                    if (isBlackjack) {
+                      set({ message: `🎉 BLACKJACK ✨ ! Gain net : +${delta}€ !` });
+                    } else {
+                      set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
+                    }
                     setTimeout(() => set({ message: undefined }), 4000);
-                  } else if (delta<0) { 
+                  } else if (delta === 0) { 
+                    // Perte : mise déjà perdue
                     SFX.lose(); 
                     set({ bank });
-                    // Animation supprimée
-                    set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
+                    set({ message: `💔 Perte ! Votre mise est perdue !` });
                     setTimeout(() => set({ message: undefined }), 4000);
-                  } else {
-                    // Égalité : rembourser la mise initiale
-                    const bankWithRefund = currentSt.bank + finalSt.betAmount;
-                    localStorage.setItem(LS_KEY, String(bankWithRefund));
-                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank: bankWithRefund });
+                  } else if (delta > 0 && delta === finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) {
+                    // Égalité : remboursement de la mise
+                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
                     setTimeout(() => set({ message: undefined }), 3000);
                   }
                   set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
@@ -386,7 +383,143 @@ export const useGame = create<GameState>()(
           } else {
             // Vraiment bust, fin de la main
             SFX.bust(); 
-            get().stand(); 
+            // Marquer la main comme terminée au lieu d'appeler stand()
+            hands[st.active].done = true;
+            set({ hands });
+            
+            // Passer à la main suivante ou au croupier
+            const next = hands.findIndex((h, i) => !h.done && i > st.active);
+            if (next !== -1) {
+              set({ active: next });
+            } else {
+              // Le croupier joue automatiquement
+              set({ phase: "dealer" });
+              
+              // Attendre un peu puis faire jouer le croupier
+              setTimeout(() => {
+                const currentSt = get();
+                if (currentSt.phase === "dealer") {
+                  const { dealer, shoe } = dealerPlay(currentSt.shoe.slice(), currentSt.dealer.slice());
+                  set({ dealer, shoe, phase: "payout" });
+                  
+                  // Attendre encore un peu puis calculer le résultat
+                  setTimeout(() => {
+                    const finalSt = get();
+                    if (finalSt.phase === "payout") {
+                      let delta = 0; console.log("=== DEBUG PAYOUT ===");
+                      finalSt.hands.forEach((h) => { const payout = payoutOne(h, finalSt.dealer); console.log("Main payout:", payout, "€ (bet:", h.bet, "€)"); delta += payout; });
+                      const dealerBJ = handScore(finalSt.dealer).isBJ;
+                      finalSt.hands.forEach((h) => {
+                        if (h.insured) {
+                          if (dealerBJ) {
+                            // Assurance paie 2:1 sur le coût (moitié de la mise)
+                            const insuranceCost = Math.floor(h.bet / 2);
+                            delta += insuranceCost * 2; // Gain = coût × 2
+                          } else {
+                            // Assurance perdue si pas de Blackjack
+                            delta += 0; // Pas de gain, coût déjà déduit
+                          }
+                        }
+                      });
+                      
+                      // Calculer les gains des side bets
+                      let sideBetGains = 0;
+                      if (finalSt.sideBetAmount > 0) {
+                        const playerCards = finalSt.hands[0]?.cards || [];
+                        if (playerCards.length >= 2) {
+                          const card1 = playerCards[0];
+                          const card2 = playerCards[1];
+                          
+                          // Perfect Pairs
+                          if (card1.r === card2.r) {
+                            if (card1.s === card2.s) {
+                              // Paire parfaite (même carte) - 25:1
+                              sideBetGains += finalSt.sideBetAmount * 25;
+                              console.log("🎯 Paire parfaite ! +", finalSt.sideBetAmount * 25, "€");
+                            } else if (card1.s === "H" || card1.s === "D" || card2.s === "H" || card2.s === "D") {
+                              // Paire de couleur (rouge) - 10:1
+                              sideBetGains += finalSt.sideBetAmount * 10;
+                              console.log("🎨 Paire de couleur ! +", finalSt.sideBetAmount * 10, "€");
+                            } else {
+                              // Paire mixte - 5:1
+                              sideBetGains += finalSt.sideBetAmount * 5;
+                              console.log("🃏 Paire mixte ! +", finalSt.sideBetAmount * 5, "€");
+                            }
+                          }
+                          
+                          // Pair Plus (vraie logique casino - toutes les combinaisons)
+                          if (playerCards.length >= 3) {
+                            const card3 = playerCards[2];
+                            const ranks = [card1.r, card2.r, card3.r];
+                            const suits = [card1.s, card2.s, card3.s];
+                            
+                            // Vérifier les combinaisons
+                            if (ranks[0] === ranks[1] && ranks[1] === ranks[2]) {
+                              // Brelan - 3:1
+                              sideBetGains += finalSt.sideBetAmount * 3;
+                              console.log("🎲 Brelan ! +", finalSt.sideBetAmount * 3, "€");
+                            } else if (ranks[0] === ranks[1] || ranks[1] === ranks[2] || ranks[0] === ranks[2]) {
+                              // Paire - 1:1
+                              sideBetGains += finalSt.sideBetAmount * 1;
+                              console.log("🃏 Paire ! +", finalSt.sideBetAmount * 1, "€");
+                            }
+                          }
+                        }
+                      }
+                      
+                      // CORRECTION : Rembourser la mise + ajouter le gain/perte + side bets
+                      const totalGains = delta + sideBetGains;
+                      console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
+                      
+                      // CORRECTION : La mise est déjà déduite du solde
+                      // Si delta > 0 : gain (on récupère la mise + gain)
+                      // Si delta = 0 : perte (on récupère rien, mise déjà perdue)  
+                      // Si delta = mise : égalité (on récupère la mise)
+                      let bank = finalSt.bank;
+                      
+                      // En cas d'égalité, rembourser la mise
+                      if (delta > 0 && delta === finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) {
+                        // Égalité : delta = mise (remboursement)
+                        console.log("🤝 Égalité : remboursement de la mise", delta, "€");
+                      }
+                      
+                      // Ajouter les gains/pertes
+                      bank += totalGains;
+                      bank = Math.max(0, bank);
+                      localStorage.setItem(LS_KEY, String(bank));
+                      
+                      if (delta > 0 && delta !== finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) { 
+                        // Gain net (pas d'égalité)
+                        SFX.win(); 
+                        set({ showWinAnimation: true, bank });
+                        setTimeout(() => set({ showWinAnimation: false }), 2000);
+                        
+                        // Vérifier si c'est un Blackjack
+                        const isBlackjack = finalSt.hands.some(h => handScore(h.cards).isBJ);
+                        if (isBlackjack) {
+                          set({ message: `🎉 BLACKJACK ✨ ! Gain net : +${delta}€ !` });
+                        } else {
+                          set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
+                        }
+                        setTimeout(() => set({ message: undefined }), 4000);
+                      } else if (delta === 0) { 
+                        // Perte : mise déjà perdue
+                        SFX.lose(); 
+                        set({ bank });
+                        set({ message: `💔 Perte ! Votre mise est perdue !` });
+                        setTimeout(() => set({ message: undefined }), 4000);
+                      } else if (delta > 0 && delta === finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) {
+                        // Égalité : remboursement de la mise
+                        set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
+                        setTimeout(() => set({ message: undefined }), 3000);
+                      }
+                      set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
+                      if (finalSt.shoe.length < 20) { SFX.shuffle(); set({ shoe: shuffle(buildDeck(1)) }); }
+                    }
+                  }, 2000);
+                }
+              }, 1000);
+            }
           }
         }
       },
@@ -404,13 +537,18 @@ export const useGame = create<GameState>()(
         if (score.isBust && score.softTotal && score.softTotal <= 21) {
           console.log(`🎯 Main soft convertie : ${score.total} → ${score.softTotal}`);
           // La main n'est pas vraiment bust, on peut continuer
+          // Mais on ne doit pas appeler stand() à nouveau pour éviter la boucle infinie
           return;
         }
         
+        // Marquer la main comme terminée
         hands[st.active].done = true;
+        
+        // Passer à la main suivante ou au croupier
         const next = hands.findIndex((h, i) => !h.done && i > st.active);
-        if (next !== -1) set({ hands, active: next });
-        else {
+        if (next !== -1) {
+          set({ hands, active: next });
+        } else {
           // Le croupier joue automatiquement
           set({ hands, phase: "dealer" });
           
@@ -490,29 +628,46 @@ export const useGame = create<GameState>()(
                   const totalGains = delta + sideBetGains;
                   console.log("Delta final:", delta, "€, Side bets:", sideBetGains, "€, Total:", totalGains, "€");
                   
-                  // CORRECTION : La mise est déjà déduite du solde, donc on ajoute seulement le delta
+                  // CORRECTION : La mise est déjà déduite du solde
                   // Si delta > 0 : gain (on récupère la mise + gain)
-                  // Si delta < 0 : perte (on récupère rien, mise déjà perdue)
-                  // Si delta = 0 : égalité (on récupère la mise)
-                  const bank = Math.max(0, finalSt.bank + totalGains);
+                  // Si delta = 0 : perte (on récupère rien, mise déjà perdue)  
+                  // Si delta = mise : égalité (on récupère la mise)
+                  let bank = finalSt.bank;
+                  
+                  // En cas d'égalité, rembourser la mise
+                  if (delta > 0 && delta === finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) {
+                    // Égalité : delta = mise (remboursement)
+                    console.log("🤝 Égalité : remboursement de la mise", delta, "€");
+                  }
+                  
+                  // Ajouter les gains/pertes
+                  bank += totalGains;
+                  bank = Math.max(0, bank);
                   localStorage.setItem(LS_KEY, String(bank));
-                  if (delta>0) { 
+                  
+                  if (delta > 0 && delta !== finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) { 
+                    // Gain net (pas d'égalité)
                     SFX.win(); 
                     set({ showWinAnimation: true, bank });
                     setTimeout(() => set({ showWinAnimation: false }), 2000);
-                    set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
+                    
+                    // Vérifier si c'est un Blackjack
+                    const isBlackjack = finalSt.hands.some(h => handScore(h.cards).isBJ);
+                    if (isBlackjack) {
+                      set({ message: `🎉 BLACKJACK ✨ ! Gain net : +${delta}€ !` });
+                    } else {
+                      set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
+                    }
                     setTimeout(() => set({ message: undefined }), 4000);
-                  } else if (delta<0) { 
+                  } else if (delta === 0) { 
+                    // Perte : mise déjà perdue
                     SFX.lose(); 
                     set({ bank });
-                    // Animation supprimée
-                    set({ message: `💔 T'es nul PD ! Perte nette : ${Math.abs(delta)}€ !` });
+                    set({ message: `💔 Perte ! Votre mise est perdue !` });
                     setTimeout(() => set({ message: undefined }), 4000);
-                  } else {
-                    // Égalité : rembourser la mise initiale
-                    const bankWithRefund = finalSt.bank + finalSt.betAmount;
-                    localStorage.setItem(LS_KEY, String(bankWithRefund));
-                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank: bankWithRefund });
+                  } else if (delta > 0 && delta === finalSt.hands.reduce((sum, h) => sum + h.bet, 0)) {
+                    // Égalité : remboursement de la mise
+                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
                     setTimeout(() => set({ message: undefined }), 3000);
                   }
                   set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
