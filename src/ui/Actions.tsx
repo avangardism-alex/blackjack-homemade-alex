@@ -93,64 +93,64 @@ export default function Actions({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-xs">
       {/* Actions principales */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
+      <div className="grid grid-cols-2 gap-2 mb-2">
         <button 
           onClick={onHit}
-          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-4 py-3 rounded-lg font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-105 transition-transform shadow-lg border-2 border-green-400"
+          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-green-400"
         >
-          <span className="text-sm">🎯</span>
+          <span className="text-xs">🎯</span>
           <span>Tirer</span>
         </button>
         
         <button 
           onClick={onStand}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white px-4 py-3 rounded-lg font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-105 transition-transform shadow-lg border-2 border-blue-400"
+          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white px-3 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-blue-400"
         >
-          <span className="text-sm">✋</span>
+          <span className="text-xs">✋</span>
           <span>Rester</span>
         </button>
       </div>
 
       {/* Actions spéciales */}
-      <div className="grid grid-cols-3 gap-2 mb-3">
+      <div className="grid grid-cols-3 gap-1 mb-2">
         {canDoubleDown && (
           <button 
             onClick={onDoubleDown}
-            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white px-2 py-2 rounded-lg font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-purple-400"
+            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white px-1 py-1 rounded-lg font-bold text-xs flex flex-col items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-purple-400"
           >
             <span className="text-xs">x2</span>
-            <span>Doubler</span>
+            <span className="text-xs">Doubler</span>
           </button>
         )}
         
         {canSplit && (
           <button 
             onClick={onSplit}
-            className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white px-2 py-2 rounded-lg font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-orange-400"
+            className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white px-1 py-1 rounded-lg font-bold text-xs flex flex-col items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-orange-400"
           >
             <span className="text-xs">✂️</span>
-            <span>Diviser</span>
+            <span className="text-xs">Diviser</span>
           </button>
         )}
         
         {canSurrender && (
           <button 
             onClick={onSurrender}
-            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-2 py-2 rounded-lg font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-red-400"
+            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-1 py-1 rounded-lg font-bold text-xs flex flex-col items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-red-400"
           >
             <span className="text-xs">🏳️</span>
-            <span>Abandonner</span>
+            <span className="text-xs">Abandonner</span>
           </button>
         )}
       </div>
 
       {/* Assurance */}
       {canInsurance && (
-        <div className="mb-3">
+        <div className="mb-2">
           {isInsuranceMandatory && (
-            <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm text-center border-2 border-red-400 mb-2">
+            <div className="bg-red-600 text-white px-2 py-1 rounded-lg font-bold text-xs text-center border-2 border-red-400 mb-1">
               🚨 ASSURANCE OBLIGATOIRE !
               {cardCounter && (
                 <div className="text-xs opacity-80">
@@ -162,14 +162,14 @@ export default function Actions({
           
           <button
             onClick={onInsurance}
-            className={`w-full px-4 py-3 rounded-lg font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-105 transition-transform shadow-lg border-2 ${
+            className={`w-full px-2 py-1 rounded-lg font-bold text-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 ${
               isInsuranceMandatory
                 ? 'bg-red-700 hover:bg-red-600 text-white border-red-400'
                 : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-yellow-400'
             }`}
           >
-            <span className="text-sm">🛡️</span>
-            <span>
+            <span className="text-xs">🛡️</span>
+            <span className="text-xs">
               {isInsuranceMandatory ? 'FORCER L\'ASSURANCE !' : 'ASSURANCE'}
             </span>
           </button>
@@ -177,23 +177,23 @@ export default function Actions({
       )}
 
       {/* AUDIT STRATÉGIQUE - NOUVEAU */}
-      <div className="mb-3">
+      <div className="mb-2">
         <button 
           onClick={() => {
             const advice = getStrategyAdvice();
             setStrategyAdvice(advice);
             setShowStrategy(!showStrategy);
           }}
-          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-lg font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-105 transition-transform shadow-lg border-2 border-purple-400"
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-2 py-1 rounded-lg font-bold text-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-purple-400"
         >
-          <span className="text-sm">🧮</span>
-          <span>AUDIT STRATÉGIQUE</span>
+          <span className="text-xs">🧮</span>
+          <span className="text-xs">AUDIT STRATÉGIQUE</span>
         </button>
         
         {showStrategy && strategyAdvice && (
-          <div className="mt-3 bg-black/80 backdrop-blur p-3 rounded-lg border-2 border-purple-400">
-            <div className="text-purple-300 text-xs font-bold mb-2">📊 CONSEIL STRATÉGIQUE</div>
-            <div className="text-white text-sm font-bold mb-2 whitespace-pre-line">
+          <div className="mt-2 bg-black/80 backdrop-blur p-2 rounded-lg border-2 border-purple-400">
+            <div className="text-purple-300 text-xs font-bold mb-1">📊 CONSEIL STRATÉGIQUE</div>
+            <div className="text-white text-xs font-bold mb-1 whitespace-pre-line">
               {strategyAdvice}
             </div>
             <div className="text-gray-300 text-xs opacity-80">
@@ -204,13 +204,13 @@ export default function Actions({
       </div>
 
       {/* Bouton "FAIRE CONFIANCE AUX MATHS" */}
-      <div className="mb-3">
+      <div className="mb-2">
         <button 
           onClick={executeOptimalAction}
-          className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-4 py-3 rounded-lg font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-105 transition-transform shadow-lg border-2 border-green-400"
+          className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-2 py-1 rounded-lg font-bold text-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform shadow-lg border-2 border-green-400"
         >
-          <span className="text-sm">🚀</span>
-          <span>FAIRE CONFIANCE AUX MATHS</span>
+          <span className="text-xs">🚀</span>
+          <span className="text-xs">FAIRE CONFIANCE AUX MATHS</span>
         </button>
         <div className="text-gray-300 text-xs text-center mt-1 opacity-80">
           Exécute automatiquement l'action optimale
@@ -219,9 +219,9 @@ export default function Actions({
 
       {/* Conseils stratégiques */}
       {cardCounter && (
-        <div className="bg-black/20 backdrop-blur-sm border border-white/20 rounded-lg p-3 text-center">
+        <div className="bg-black/20 backdrop-blur-sm border border-white/20 rounded-lg p-2 text-center">
           <div className="text-white text-xs font-bold mb-1">📊 COMPTEUR DE CARTES</div>
-          <div className="text-yellow-400 text-lg font-bold">
+          <div className="text-yellow-400 text-sm font-bold">
             {cardCounter.getTrueCount().toFixed(1)}
           </div>
           <div className="text-white text-xs opacity-80">

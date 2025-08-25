@@ -334,25 +334,58 @@ export default function App() {
             </div>
           )}
 
-          {/* Actions du joueur */}
-          {g.phase === "player" && g.hands[g.active] && (
-            <Actions 
-              onHit={g.hit}
-              onStand={g.stand}
-              onDoubleDown={g.doubleDown}
-              onSplit={g.split}
-              onSurrender={g.surrender}
-              onInsurance={g.insurance}
-              canDoubleDown={!g.hands[g.active].doubled && g.hands[g.active].cards.length === 2 && g.bank >= g.hands[g.active].bet}
-              canSplit={g.hands[g.active].cards.length === 2 && g.hands[g.active].cards[0].r === g.hands[g.active].cards[1].r && g.bank >= g.hands[g.active].bet}
-              canSurrender={g.hands[g.active].cards.length === 2}
-              canInsurance={g.dealer[0]?.r === "A" && !g.hands[g.active].insured}
-              cardCounter={g.cardCounter}
-              isInsuranceMandatory={false}
-              currentHand={g.hands[g.active]}
-              dealerUpCard={g.dealer[0]}
-              bank={g.bank}
-            />
+          {/* Boutons d'action - Déplacés à droite */}
+          {g.phase === "player" && (
+            <div className="absolute right-4 bottom-20 z-20">
+              <Actions
+                onHit={g.hit}
+                onStand={g.stand}
+                onDoubleDown={g.doubleDown}
+                onSplit={g.split}
+                onSurrender={g.surrender}
+                onInsurance={g.insurance}
+                canDoubleDown={g.canDoubleDown()}
+                canSplit={g.canSplit()}
+                canSurrender={g.canSurrender()}
+                canInsurance={g.canInsurance()}
+                cardCounter={g.cardCounter}
+                isInsuranceMandatory={g.isInsuranceMandatory()}
+                currentHand={g.hands[g.active]}
+                dealerUpCard={g.dealer[0]}
+                bank={g.bank}
+              />
+            </div>
+          )}
+
+          {/* Boutons d'action principaux - Supprimés d'ici */}
+          {g.phase === "betting" && (
+            <div className="flex justify-center gap-3">
+              <button 
+                onClick={g.deal} 
+                disabled={g.betAmount <= 0} 
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-bold text-sm sm:text-base disabled:opacity-50 hover:from-green-500 hover:to-green-600 transition-colors shadow-lg border-2 border-green-400 disabled:hover:from-green-600 disabled:hover:to-green-700"
+              >
+                🎮 JOUER
+              </button>
+              <button 
+                onClick={g.clearBet} 
+                className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm sm:text-base hover:from-red-500 hover:to-red-600 transition-colors shadow-lg border-2 border-red-400"
+              >
+                🗑️ Effacer
+              </button>
+            </div>
+          )}
+          
+          {g.phase === "payout" && (
+            <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 border-2 border-green-600/50 rounded-lg p-3">
+              <div className="text-center text-green-200 text-xs font-bold mb-2">🎉 FIN DE PARTIE</div>
+              <button 
+                onClick={g.nextPhase} 
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg font-bold text-base w-full hover:from-green-500 hover:to-green-600 transition-colors shadow-lg border-2 border-green-400"
+              >
+                🎮 NOUVELLE MAIN
+              </button>
+            </div>
           )}
         </div>
 
@@ -398,7 +431,7 @@ export default function App() {
             </div>
           )}
           
-          {/* Boutons d'action principaux */}
+          {/* Boutons d'action principaux - Supprimés d'ici */}
           {g.phase === "betting" && (
             <div className="flex justify-center gap-3">
               <button 
