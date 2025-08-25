@@ -163,35 +163,35 @@ export default function App() {
           {g.message && (
             <div className="text-center mb-4">
               {g.message.includes("Victoire") || g.message.includes("WIN") || g.message.includes("BLACKJACK") ? (
-                <div className="text-green-500 text-2xl sm:text-3xl md:text-4xl font-bold bg-green-900/20 px-6 py-3 rounded-xl border-2 border-green-400 shadow-xl">
+                <div className="text-green-500 text-xl sm:text-2xl md:text-3xl font-bold bg-green-900/20 px-4 py-2 rounded-xl border-2 border-green-400 shadow-xl max-w-2xl mx-auto">
                   🎉 WIN ✨
                   {g.message.includes("+") && (
-                    <div className="text-green-400 text-lg sm:text-xl mt-2">
+                    <div className="text-green-400 text-base sm:text-lg mt-2">
                       {g.message.match(/\+(\d+)€/)?.[1]}€ gagnés !
                     </div>
                   )}
                 </div>
               ) : g.message.includes("Perte") || g.message.includes("BUST") || g.message.includes("BUSTED") || g.message.includes("nul") ? (
-                <div className="text-red-500 text-2xl sm:text-3xl md:text-4xl font-bold bg-red-900/20 px-6 py-3 rounded-xl border-2 border-red-400 shadow-xl">
+                <div className="text-red-500 text-xl sm:text-2xl md:text-3xl font-bold bg-red-900/20 px-4 py-2 rounded-xl border-2 border-red-400 shadow-xl max-w-2xl mx-auto">
                   💔 BUSTED 🥹
                   {g.message.includes("Perte nette") && (
-                    <div className="text-red-400 text-lg sm:text-xl mt-2">
+                    <div className="text-red-400 text-base sm:text-lg mt-2">
                       {g.message.match(/(\d+)€/)?.[1]}€ perdus
                     </div>
                   )}
                 </div>
               ) : g.message.includes("Égalité") || g.message.includes("PUSH") ? (
-                <div className="text-blue-500 text-2xl sm:text-3xl md:text-4xl font-bold bg-blue-900/20 px-6 py-3 rounded-xl border-2 border-blue-400 shadow-xl">
+                <div className="text-blue-500 text-xl sm:text-2xl md:text-3xl font-bold bg-blue-900/20 px-4 py-2 rounded-xl border-2 border-blue-400 shadow-xl max-w-2xl mx-auto">
                   🤝 PUSH!
                 </div>
               ) : (
-                <div className="text-yellow-500 text-xl sm:text-2xl md:text-3xl font-bold bg-yellow-900/20 px-4 py-2 rounded-lg border-2 border-yellow-400 shadow-lg">
+                <div className="text-yellow-500 text-lg sm:text-xl md:text-2xl font-bold bg-yellow-900/20 px-3 py-2 rounded-lg border-2 border-yellow-400 shadow-lg max-w-xl mx-auto">
                   {g.message}
                 </div>
               )}
               
               {g.message.includes("Égalité") && (
-                <div className="text-blue-400 text-sm mt-2">
+                <div className="text-blue-400 text-xs mt-2">
                   Votre mise vous est remboursée - pas de gain, pas de perte
                 </div>
               )}
@@ -201,8 +201,8 @@ export default function App() {
           {/* Affichage des gains en temps réel */}
           {g.phase === "payout" && g.hands.length > 0 && (
             <div className="text-center mb-4">
-              <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 border-2 border-green-600/50 rounded-lg p-4">
-                <div className="text-green-200 text-lg font-bold mb-2">💰 CALCUL DES GAINS</div>
+              <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 border-2 border-green-600/50 rounded-lg p-3 max-w-md mx-auto">
+                <div className="text-green-200 text-sm font-bold mb-2">💰 GAINS</div>
                 {g.hands.map((hand, index) => {
                   const score = handScore(hand.cards);
                   const dealerScore = handScore(g.dealer);
@@ -246,10 +246,10 @@ export default function App() {
                   
                   return (
                     <div key={index} className="mb-2 p-2 bg-black/20 rounded border border-green-500/30">
-                      <div className="text-white text-sm">
+                      <div className="text-white text-xs">
                         Main {index + 1}: {result}
                       </div>
-                      <div className={`text-lg font-bold ${color}`}>
+                      <div className={`text-base font-bold ${color}`}>
                         {payout > 0 ? '+' : ''}{payout}€
                       </div>
                       <div className="text-gray-400 text-xs">
