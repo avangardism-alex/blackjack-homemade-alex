@@ -294,8 +294,22 @@ export const useGame = create<GameState>()(
                     set({ bank, message: `💔 Perte ! Votre mise est perdue !` });
                     setTimeout(() => set({ message: undefined }), 4000);
                   } else {
-                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
-                    setTimeout(() => set({ message: undefined }), 3000);
+                    // CORRECTION : Vérifier si c'est vraiment une égalité en comparant les scores
+                    const playerScore = handScore(finalSt.hands[0]?.cards || []);
+                    const dealerScore = handScore(finalSt.dealer);
+                    const isRealTie = playerScore.total === dealerScore.total && !playerScore.isBust && !dealerScore.isBust;
+                    
+                    if (isRealTie) {
+                      set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
+                      setTimeout(() => set({ message: undefined }), 3000);
+                    } else {
+                      // Ce n'est pas une égalité, c'est une victoire
+                      SFX.win();
+                      set({ showWinAnimation: true, bank });
+                      setTimeout(() => set({ showWinAnimation: false }), 2000);
+                      set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
+                      setTimeout(() => set({ message: undefined }), 4000);
+                    }
                   }
                   
                   set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
@@ -394,8 +408,22 @@ export const useGame = create<GameState>()(
                       set({ bank, message: `💔 Perte ! Votre mise est perdue !` });
                       setTimeout(() => set({ message: undefined }), 4000);
                     } else {
-                      set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
-                      setTimeout(() => set({ message: undefined }), 3000);
+                      // CORRECTION : Vérifier si c'est vraiment une égalité en comparant les scores
+                      const playerScore = handScore(finalSt.hands[0]?.cards || []);
+                      const dealerScore = handScore(finalSt.dealer);
+                      const isRealTie = playerScore.total === dealerScore.total && !playerScore.isBust && !dealerScore.isBust;
+                      
+                      if (isRealTie) {
+                        set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
+                        setTimeout(() => set({ message: undefined }), 3000);
+                      } else {
+                        // Ce n'est pas une égalité, c'est une victoire
+                        SFX.win();
+                        set({ showWinAnimation: true, bank });
+                        setTimeout(() => set({ showWinAnimation: false }), 2000);
+                        set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
+                        setTimeout(() => set({ message: undefined }), 4000);
+                      }
                     }
                     
                     set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
@@ -618,8 +646,22 @@ export const useGame = create<GameState>()(
                     set({ bank, message: `💔 Perte ! Votre mise est perdue !` });
                     setTimeout(() => set({ message: undefined }), 4000);
                   } else {
-                    set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
-                    setTimeout(() => set({ message: undefined }), 3000);
+                    // CORRECTION : Vérifier si c'est vraiment une égalité en comparant les scores
+                    const playerScore = handScore(finalSt.hands[0]?.cards || []);
+                    const dealerScore = handScore(finalSt.dealer);
+                    const isRealTie = playerScore.total === dealerScore.total && !playerScore.isBust && !dealerScore.isBust;
+                    
+                    if (isRealTie) {
+                      set({ message: "🤝 Égalité ! Votre mise vous est remboursée !", bank });
+                      setTimeout(() => set({ message: undefined }), 3000);
+                    } else {
+                      // Ce n'est pas une égalité, c'est une victoire
+                      SFX.win();
+                      set({ showWinAnimation: true, bank });
+                      setTimeout(() => set({ showWinAnimation: false }), 2000);
+                      set({ message: `🎉 Victoire ! Gain net : +${delta}€ !` });
+                      setTimeout(() => set({ message: undefined }), 4000);
+                    }
                   }
                   
                   set({ phase: "betting", hands: [], dealer: [], betAmount: 0, active: 0 });
